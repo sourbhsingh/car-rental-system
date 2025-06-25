@@ -1,20 +1,26 @@
 package com.carrentalsystem.app.enitity;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-
+import jakarta.validation.constraints.*;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CarImage {
+
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    @NotBlank(message = "Image URL is required")
+    private String imageUrl;
 
-    public Integer getId() {
-        return id;
-    }
+    @ManyToOne
+    @JoinColumn(name = "car_id", nullable = false)
+    @NotNull
+    private Car car;
 }

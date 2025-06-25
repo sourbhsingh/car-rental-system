@@ -1,21 +1,35 @@
 package com.carrentalsystem.app.enitity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
+import com.carrentalsystem.app.helper.PaymentStatus;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Payment {
+
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    @OneToOne
+    @JoinColumn(name = "booking_id", nullable = false)
+    @NotNull
+    private Booking booking;
 
-    public Integer getId() {
-        return id;
-    }
+    @Positive(message = "Amount must be positive")
+    private Double amount;
+
+    @NotBlank(message = "Payment method is required")
+    private String paymentMethod;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private PaymentStatus status;
 }
