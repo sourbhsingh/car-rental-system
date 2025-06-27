@@ -1,10 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | RideVia</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
 
+<header class="dashboard-header">
+    <img src="/img/logo.png" alt="RideVia Logo" class="logo" />
+    <h1>Admin Dashboard</h1>
+    <a th:href="@{/logout}" class="btn small danger">Logout</a>
+</header>
+
+<main class="dashboard-grid">
+    <a th:href="@{/admin/cars}" class="dashboard-card">
+        <h2>Manage Cars</h2>
+        <p>View, edit or delete car listings</p>
+    </a>
+
+    <a th:href="@{/admin/addcar}" class="dashboard-card">
+        <h2>Add Car</h2>
+        <p>Upload new car with images</p>
+    </a>
+
+    <a th:href="@{/admin/bookings}" class="dashboard-card">
+        <h2>Bookings</h2>
+        <p>Monitor all active and past bookings</p>
+    </a>
+
+    <a th:href="@{/admin/users}" class="dashboard-card">
+        <h2>Users</h2>
+        <p>Manage registered users</p>
+    </a>
+</main>
+
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

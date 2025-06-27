@@ -10,6 +10,7 @@ import com.carrentalsystem.app.repository.BookingRepository;
 import com.carrentalsystem.app.repository.PaymentRepository;
 import com.carrentalsystem.app.service.PaymentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
+
     private final BookingRepository bookingRepository;
 
     @Override

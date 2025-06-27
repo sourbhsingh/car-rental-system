@@ -1,10 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login | RideVia</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
 
+<div class="form-container admin-theme">
+    <div class="form-card">
+        <img src="/img/logo.png" alt="RideVia Logo" class="form-logo" />
+        <h2>Admin Access</h2>
+        <p class="form-subtext">Sign in to manage RideVia system</p>
+
+        <form th:action="@{/admin/login}" method="post" th:object="${userLoginDTO}">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" th:field="*{email}" id="email" placeholder="admin@ridevia.com" required />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" th:field="*{password}" id="password" placeholder="••••••••" required />
+            </div>
+
+            <button type="submit" class="btn primary full-width">Login as Admin</button>
+        </form>
+
+        <div class="form-footer">
+            Not an admin? <a th:href="@{/login}">User Login</a>
+        </div>
+
+        <div class="form-nav-buttons">
+            <a th:href="@{/'/'}" class="btn outline small">← Home</a>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

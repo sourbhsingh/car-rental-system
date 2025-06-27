@@ -9,6 +9,7 @@ import com.carrentalsystem.app.repository.CarImageRepository;
 import com.carrentalsystem.app.repository.CarRepository;
 import com.carrentalsystem.app.service.CarService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,6 +84,53 @@ public class CarServiceImpl implements CarService {
                 .orElseThrow(() -> new ResourceNotFoundException("Car not found for delete with ID: " + id));
         carRepository.delete(car);
     }
+
+    @Override
+    @Transactional
+    public void addCarWithImages(CarUploadDTO carDTO, List<MultipartFile> imageFiles) {
+        Car car = new Car();
+        car.setBrand(carDTO.getBrand());
+        car.setModel(carDTO.getModel());
+        car.setColor(carDTO.getColor());
+        car.setType(carDTO.getType());
+        car.setFuelType(carDTO.getFuelType());
+        car.setDescription(carDTO.getDescription());
+        car.setPricePerHour(carDTO.getPricePerHour());
+        car.setAvailable(true); // default availability
+
+        Car savedCar = carRepository.save(car);
+
+        List<CarImage> imageEntities = new ArrayList<>();
+
+        for (MultipartFile file : imageFiles) {
+            if (!file.isEmpty()) {
+                try {
+                    // Create unique file name
+                    String fileName = "car_" + savedCar.getId() + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                    String uploadDir = "uploads/";
+
+                    // Save image to local directory
+                    Path filePath = Paths.get(uploadDir, fileName);
+                    Files.createDirectories(filePath.getParent());
+                    Files.write(filePath, file.getBytes());
+
+                    // Save image metadata in DB
+                    CarImage image = new CarImage();
+                    image.setCar(savedCar);
+                    image.setImageUrl("/uploads/" + fileName); // Thymeleaf static mapping
+                    imageEntities.add(image);
+
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to store image: " + file.getOriginalFilename(), e);
+                }
+            }
+        }
+
+        if (!imageEntities.isEmpty()) {
+            carImageRepository.saveAll(imageEntities);
+        }
+    }
+
 
     // Helper Methods
     private void mapUploadDTOToEntity(CarUploadDTO dto, Car car) {

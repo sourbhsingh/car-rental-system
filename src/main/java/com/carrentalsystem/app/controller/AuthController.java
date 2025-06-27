@@ -1,11 +1,10 @@
 package com.carrentalsystem.app.controller;
 
-import com.carrentalsystem.app.dto.UserDTO;
 import com.carrentalsystem.app.dto.UserLoginDTO;
 import com.carrentalsystem.app.entity.User;
 import com.carrentalsystem.app.service.UserService;
-import com.carrentalsystem.app.util.UserMapper;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,37 +12,78 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequiredArgsConstructor
+@RequestMapping("/auth")
 public class AuthController {
-
     @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    // GET request for registration form
-    // Base URL -> redirect to login page
-    @GetMapping({"/","/login"})
-    public String showLoginPage(Model model) {
-        model.addAttribute("userLoginDTO", new UserLoginDTO());
-        return "login"; // loads login.html from templates/
-    }
-
-
+    // GET - Registration page
     @GetMapping("/register")
-    public String showRegisterForm(Model model) {
-        model.addAttribute("user", new UserDTO());
+    public String showRegistrationForm(Model model) {
+        model.addAttribute("user", new User());
         return "register";
     }
 
-    // POST request to process the form
+    // POST - Register user
     @PostMapping("/register")
-    public String registerUser(@Valid @ModelAttribute("user") UserDTO userDTO,
-                               BindingResult bindingResult,
+    public String registerUser(@Valid @ModelAttribute("user") User user,
+                               BindingResult result,
                                Model model) {
-        if (bindingResult.hasErrors()) {
+        if (result.hasErrors()) {
             return "register";
         }
 
-        User user = UserMapper.toEntity(userDTO);
-        userService.saveUser(user);
-        return "redirect:/login";
+        userService.registerUser(user);
+        model.addAttribute("successMessage", "Registration successful! Please log in.");
+        return "redirect:/auth/login";
+    }
+
+    // GET - Login page
+    @GetMapping("/login")
+    public String showLoginForm(Model model) {
+        model.addAttribute("userLoginDTO", new UserLoginDTO());
+        return "login";
+    }
+    @GetMapping("/admin/login")
+    public String showAdminLoginForm(Model model) {
+        model.addAttribute("userLoginDTO", new UserLoginDTO());
+        return "admin/login";
+    }
+    @PostMapping("/admin/login")
+    public String loginAdmin(@ModelAttribute("userLoginDTO") UserLoginDTO loginDTO,
+                            Model model) {
+
+        boolean isAuthenticated = userService.authenticateUser(loginDTO);
+
+        if (isAuthenticated) {
+            // Normally, session logic goes here (Spring Security or manual)
+            return "redirect:/admin/dashboard";
+        } else {
+            model.addAttribute("error", "Invalid email or password");
+            return "admin/login";
+        }
+    }
+    // POST - Login process
+    @PostMapping("/login")
+    public String loginUser(@ModelAttribute("userLoginDTO") UserLoginDTO loginDTO,
+                            Model model) {
+
+        boolean isAuthenticated = userService.authenticateUser(loginDTO);
+
+        if (isAuthenticated) {
+            // Normally, session logic goes here (Spring Security or manual)
+            return "redirect:/user/dashboard";
+        } else {
+            model.addAttribute("error", "Invalid email or password");
+            return "login";
+        }
+    }
+
+    // GET - Logout logic (optional placeholder)
+    @GetMapping("/logout")
+    public String logoutUser() {
+        // Custom logout logic or clear session (if you maintain one manually)
+        return "redirect:/auth/login";
     }
 }

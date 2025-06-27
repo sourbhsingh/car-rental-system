@@ -26,11 +26,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class BookingServiceImpl implements BookingService {
-    @Autowired
+
     private final BookingRepository bookingRepository;
-    @Autowired
+
     private final UserRepository userRepository;
-    @Autowired
+
     private final CarRepository carRepository;
 
     @Override
