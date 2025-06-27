@@ -1,7 +1,13 @@
 package com.carrentalsystem.app.service;
 
-import org.springframework.stereotype.Service;
+import com.carrentalsystem.app.dto.PaymentRequestDTO;
+import com.carrentalsystem.app.dto.PaymentResponseDTO;
 
-@Service
-public class PaymentService {
+import java.util.List;
+
+public interface PaymentService {
+    PaymentResponseDTO makePayment(PaymentRequestDTO paymentRequestDTO);
+    PaymentResponseDTO getPaymentByBookingId(Integer bookingId);
+    List<PaymentResponseDTO> getAllPayments();
+    void deletePayment(Integer paymentId);
 }
