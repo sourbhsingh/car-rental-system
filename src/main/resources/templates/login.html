@@ -31,13 +31,14 @@
         <div class="form-footer">
             New here? <a th:href="@{/register}">Create an account</a>
         </div>
+        <div class="form-nav-buttons">
+            <a th:href="@{/}" class="btn outline small">← Home</a>
+            <a th:href="@{/admin/login}" class="btn outline small">Admin Login</a>
+        </div>
 
 
     </div>
-    <div class="form-nav-buttons">
-        <a th:href="@{/'/'}" class="btn outline small">← Home</a>
-        <a th:href="@{/admin/login}" class="btn outline small">Admin Login</a>
-    </div>
+
 </div>
 
 <script th:src="@{/js/main.js}"></script>
