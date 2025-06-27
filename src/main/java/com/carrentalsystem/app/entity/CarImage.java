@@ -1,4 +1,4 @@
-package com.carrentalsystem.app.enitity;
+package com.carrentalsystem.app.entity;
 import jakarta.validation.constraints.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

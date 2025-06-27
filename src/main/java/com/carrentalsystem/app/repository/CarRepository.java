@@ -1,6 +1,6 @@
 package com.carrentalsystem.app.repository;
 
-import com.carrentalsystem.app.enitity.Car;
+import com.carrentalsystem.app.entity.Car;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CarRepository extends JpaRepository<Car, Integer> {

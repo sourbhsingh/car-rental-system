@@ -1,6 +1,6 @@
 package com.carrentalsystem.app.repository;
 
-import com.carrentalsystem.app.enitity.User;
+import com.carrentalsystem.app.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Integer> {

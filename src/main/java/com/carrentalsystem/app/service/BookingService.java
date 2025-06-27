@@ -1,6 +1,6 @@
 package com.carrentalsystem.app.service;
 
-import com.carrentalsystem.app.enitity.Booking;
+import com.carrentalsystem.app.entity.Booking;
 import com.carrentalsystem.app.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

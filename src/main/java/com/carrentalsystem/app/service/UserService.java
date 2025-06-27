@@ -1,6 +1,6 @@
 package com.carrentalsystem.app.service;
 
-import com.carrentalsystem.app.enitity.User;
+import com.carrentalsystem.app.entity.User;
 import com.carrentalsystem.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

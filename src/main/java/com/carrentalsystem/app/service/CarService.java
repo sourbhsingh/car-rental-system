@@ -1,8 +1,8 @@
 // CarService.java
 package com.carrentalsystem.app.service;
 
-import com.carrentalsystem.app.enitity.Car;
-import com.carrentalsystem.app.enitity.CarImage;
+import com.carrentalsystem.app.entity.Car;
+import com.carrentalsystem.app.entity.CarImage;
 import com.carrentalsystem.app.repository.CarImageRepository;
 import com.carrentalsystem.app.repository.CarRepository;
 import org.springframework.beans.factory.annotation.Autowired;

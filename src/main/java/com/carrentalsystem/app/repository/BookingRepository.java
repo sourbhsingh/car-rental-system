@@ -1,7 +1,7 @@
 package com.carrentalsystem.app.repository;
 
-import com.carrentalsystem.app.enitity.Booking;
-import com.carrentalsystem.app.enitity.User;
+import com.carrentalsystem.app.entity.Booking;
+import com.carrentalsystem.app.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +14,5 @@ public interface BookingRepository extends JpaRepository<Booking,Integer> {
     List<Booking> findAllByUser_Id(Integer userId);
 
     Integer user(User user);
- >
+
 }

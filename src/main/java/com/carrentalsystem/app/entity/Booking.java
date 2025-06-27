@@ -1,4 +1,4 @@
-package com.carrentalsystem.app.enitity;
+package com.carrentalsystem.app.entity;
 
 import com.carrentalsystem.app.helper.BookingStatus;
 
