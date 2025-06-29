@@ -2,10 +2,12 @@ package com.carrentalsystem.app.service;
 
 import com.carrentalsystem.app.dto.CarDTO;
 import com.carrentalsystem.app.dto.CarUploadDTO;
+import com.carrentalsystem.app.entity.CarImage;
 import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CarService {
     List<CarDTO> getAllAvailableCars();
@@ -16,4 +18,10 @@ public interface CarService {
     void deleteCar(Integer id);
 
     void addCarWithImages(@Valid CarUploadDTO carDTO, List<MultipartFile> imageFiles);
+    void addCarWithImages(Integer id, List<MultipartFile> imageFiles);
+    long countAvailableCars();
+
+    void deleteImage(CarImage image);
+
+    CarImage findByImageUrl(String imageUrl);
 }

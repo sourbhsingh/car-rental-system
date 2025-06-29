@@ -13,7 +13,7 @@ public class CarDTO {
     private String color;
     private String type;
     private FuelType fuelType;
-    private boolean isAvailable;
+    private boolean available;
     private String description;
     private Double pricePerHour;
     private List<String> imageUrls;

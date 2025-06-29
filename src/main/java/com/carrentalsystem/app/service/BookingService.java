@@ -12,4 +12,10 @@ public interface BookingService {
     BookingResponseDTO getBookingById(Integer bookingId);
     BookingResponseDTO updateBookingStatus(Integer bookingId, String newStatus); // Optional
     void deleteBooking(Integer bookingId);
+    void cancelBooking(Integer bookingId);
+    long getBookingCount();
+
+    double calculateTotalProfit();
+
+    List<BookingResponseDTO> getRecentBookings(int i);
 }

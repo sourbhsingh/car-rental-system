@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,15 +30,16 @@ public class AuthController {
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") User user,
                                BindingResult result,
-                               Model model) {
+                               RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            return "register";
+            return "register"; // Thymeleaf template name
         }
 
         userService.registerUser(user);
-        model.addAttribute("successMessage", "Registration successful! Please log in.");
+        redirectAttributes.addFlashAttribute("successMessage", "Registration successful! Please log in.");
         return "redirect:/auth/login";
     }
+
 
     // GET - Login page
     @GetMapping("/login")

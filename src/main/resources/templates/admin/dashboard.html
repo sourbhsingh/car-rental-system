@@ -4,38 +4,105 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard | RideVia</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <link rel="stylesheet" th:href="@{/css/admin.css}" />
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="admin-dashboard">
 
-<header class="dashboard-header">
-    <img src="/img/logo.png" alt="RideVia Logo" class="logo" />
-    <h1>Admin Dashboard</h1>
-    <a th:href="@{/logout}" class="btn small danger">Logout</a>
-</header>
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="logo">
+        <img src="/img/ridevia_logo.webp" alt="RideVia" />
+    </div>
+    <nav>
+        <ul>
+            <li><a href="#" class="active">Dashboard</a></li>
+            <li><a th:href="@{/admin/allbookings}">Bookings</a></li>
+            <li><a th:href="@{/admin/users}">Users</a></li>
+            <li><a th:href="@{/admin/cars}">Cars</a></li>
+            <li><a th:href="@{/admin/cars/add}">Add Car</a></li>
+            <li><a th:href="@{/auth/logout}">Logout</a></li>
+        </ul>
+    </nav>
+</aside>
 
-<main class="dashboard-grid">
-    <a th:href="@{/admin/cars}" class="dashboard-card">
-        <h2>Manage Cars</h2>
-        <p>View, edit or delete car listings</p>
-    </a>
+<!-- Main Content -->
+<main class="dashboard-content">
 
-    <a th:href="@{/admin/addcar}" class="dashboard-card">
-        <h2>Add Car</h2>
-        <p>Upload new car with images</p>
-    </a>
+    <!-- Summary Cards -->
+    <section class="cards">
+        <div class="card info">
+            <h3>Total Bookings</h3>
+            <p th:text="${bookingsCount}"></p>
+        </div>
+        <div class="card info">
+            <h3>Total Profit</h3>
+            <p>$<span th:text="${totalProfit}"></span></p>
+        </div>
+        <div class="card info">
+            <h3>Cars Available</h3>
+            <p th:text="${availableCarsCount}"></p>
+        </div>
 
-    <a th:href="@{/admin/bookings}" class="dashboard-card">
-        <h2>Bookings</h2>
-        <p>Monitor all active and past bookings</p>
-    </a>
+    </section>
 
-    <a th:href="@{/admin/users}" class="dashboard-card">
-        <h2>Users</h2>
-        <p>Manage registered users</p>
-    </a>
+    <!-- Chart Section -->
+    <section class="charts">
+        <div class="chart-box">
+            <h4>Monthly Revenue</h4>
+            <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Booking Status</h4>
+            <canvas id="statusChart"></canvas>
+        </div>
+    </section>
+
+    <!-- Recent Bookings -->
+    <section class="recent-bookings">
+        <div class="section-header">
+            <h3>Recent Bookings</h3>
+            <a th:href="@{/admin/allbookings}" class="btn small">View All</a>
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>User</th>
+                <th>Date</th>
+                <th>Car</th>
+                <th>Amount</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="booking : ${recentBookings}">
+                <td th:text="${booking.id}"></td>
+                <td th:text="${booking.userName}"></td>
+                <td th:text="${#temporals.format(booking.startTime, 'dd MMM yyyy')}"></td>
+                <td th:text="${booking.carName}"></td>
+                <td>$<span th:text="${booking.totalPrice}"></span></td>
+                <td>
+                    <th:block th:switch="${booking.status}">
+                        <span th:case="'COMPLETED'" class="badge success" th:text="${booking.status}"></span>
+                        <span th:case="'PENDING'" class="badge warning" th:text="${booking.status}"></span>
+                        <span th:case="*"
+                              class="badge danger"
+                              th:text="${booking.status}"></span>
+                    </th:block>
+                </td>
+
+            </tr>
+            <tr th:if="${#lists.isEmpty(recentBookings)}">
+                <td colspan="6">No recent bookings found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
 </main>
 
-<script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/dashboard-charts.js}"></script>
 </body>
 </html>

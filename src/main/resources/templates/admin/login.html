@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,8 +15,8 @@
         <h2>Admin Access</h2>
         <p class="form-subtext">Sign in to manage RideVia system</p>
 
-        <form th:action="@{/admin/login}" method="post" th:object="${userLoginDTO}">
-            <div class="form-group">
+        <form th:action="@{/auth/admin/login}" method="post" th:object="${userLoginDTO}">
+        <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" th:field="*{email}" id="email" placeholder="admin@ridevia.com" required />
             </div>

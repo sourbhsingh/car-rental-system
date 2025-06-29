@@ -9,7 +9,6 @@ import com.carrentalsystem.app.repository.CarImageRepository;
 import com.carrentalsystem.app.repository.CarRepository;
 import com.carrentalsystem.app.service.CarService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -131,6 +130,35 @@ public class CarServiceImpl implements CarService {
         }
     }
 
+    @Override
+    public void addCarWithImages(Integer id,  List<MultipartFile> imageFiles) {
+        Car car = carRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Car not found for adding images with ID: " + id));
+
+        saveImages(imageFiles, car);
+
+    }
+
+    @Override
+    public long countAvailableCars() {
+       return carRepository.findAllByAvailable(true).size();
+    }
+
+    @Override
+    public void deleteImage(CarImage image) {
+        carImageRepository.delete(image);
+
+    }
+
+    @Override
+    public CarImage findByImageUrl(String imageUrl) {
+        CarImage carImage =  carImageRepository.findByImageUrl(imageUrl).get(0);
+        if(carImage == null) {
+            throw new ResourceNotFoundException("Image not found with URL: " + imageUrl);
+        }
+        return carImage;
+    }
+
 
     // Helper Methods
     private void mapUploadDTOToEntity(CarUploadDTO dto, Car car) {
@@ -145,23 +173,30 @@ public class CarServiceImpl implements CarService {
 
     private void saveImages(List<MultipartFile> files, Car car) {
         List<CarImage> imageList = new ArrayList<>();
-        for (MultipartFile file : files) {
-            try {
-                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                File dest = new File(uploadDir + File.separator + fileName);
-                dest.getParentFile().mkdirs();
-                file.transferTo(dest);
 
-                CarImage image = new CarImage();
-                image.setImageUrl("/uploads/" + fileName);
-                image.setCar(car);
-                imageList.add(image);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to upload car image: " + file.getOriginalFilename(), e);
+        for (MultipartFile file : files) {
+            if (file != null && !file.isEmpty()) {
+                try {
+                    String fileName = "car_" + car.getId() + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                    Path filePath = Paths.get(uploadDir, fileName);
+                    Files.createDirectories(filePath.getParent());
+                    Files.write(filePath, file.getBytes());
+
+                    CarImage image = new CarImage();
+                    image.setImageUrl("/uploads/" + fileName);  // URL for Thymeleaf/static access
+                    image.setCar(car);
+                    imageList.add(image);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to upload car image: " + file.getOriginalFilename(), e);
+                }
             }
         }
-        carImageRepository.saveAll(imageList);
+
+        if (!imageList.isEmpty()) {
+            carImageRepository.saveAll(imageList);
+        }
     }
+
 
     private CarDTO mapToDTO(Car car) {
         CarDTO dto = new CarDTO();
@@ -183,4 +218,7 @@ public class CarServiceImpl implements CarService {
         }
         return dto;
     }
+
+
+
 }

@@ -7,18 +7,17 @@ import com.carrentalsystem.app.entity.Car;
 import com.carrentalsystem.app.entity.User;
 import com.carrentalsystem.app.exception.ResourceNotFoundException;
 import com.carrentalsystem.app.helper.BookingStatus;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import com.carrentalsystem.app.repository.BookingRepository;
 import com.carrentalsystem.app.repository.CarRepository;
 import com.carrentalsystem.app.repository.UserRepository;
 import com.carrentalsystem.app.service.BookingService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,6 +60,7 @@ public class BookingServiceImpl implements BookingService {
         Booking saved = bookingRepository.save(booking);
         return mapToDTO(saved);
     }
+
 
     @Override
     public List<BookingResponseDTO> getBookingsByUserId(Integer userId) {
@@ -108,6 +108,63 @@ public class BookingServiceImpl implements BookingService {
         bookingRepository.delete(booking);
     }
 
+    @Override
+    public void cancelBooking(Integer bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new IllegalStateException("Booking is already cancelled");
+        }
+        booking.setStatus(BookingStatus.CANCELLED);
+        Car car = booking.getCar();
+        bookingRepository.save(booking);
+        if(car != null) {
+            car.setAvailable(true); // Make car available again
+            carRepository.save(car);
+        }
+
+    }
+
+    @Override
+    public long getBookingCount() {
+        return bookingRepository.count();
+    }
+
+    @Override
+    public double calculateTotalProfit() {
+        List<Booking> bk= bookingRepository.findAll();
+        if(bk.isEmpty() || bk==null) {
+            return 0;
+        }
+        return bk.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.COMPLETED)
+                .mapToDouble(Booking::getTotalPrice)
+                .sum();
+
+    }
+
+    @Override
+    public List<BookingResponseDTO> getRecentBookings(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        List<Booking> recentBookings = bookingRepository.findRecentBookings(pageable);
+
+        return recentBookings.stream()
+                .map(booking -> {
+                    BookingResponseDTO dto = new BookingResponseDTO();
+                    dto.setId(booking.getId());
+                    dto.setUserName(booking.getUser().getName());
+                    dto.setCarName(booking.getCar().getId()+" "+booking.getCar().getBrand() + " " + booking.getCar().getModel());
+                    dto.setStartTime(booking.getStartTime());
+                    dto.setEndTime(booking.getEndTime());
+                    getBookingDTODuration(booking, dto);
+                    dto.setTotalPrice(booking.getTotalPrice());
+                    dto.setStatus(booking.getStatus());
+                    return dto;
+                })
+                .toList();
+    }
+
+
     private BookingResponseDTO mapToDTO(Booking booking) {
         BookingResponseDTO dto = new BookingResponseDTO();
         dto.setId(booking.getId());
@@ -117,6 +174,19 @@ public class BookingServiceImpl implements BookingService {
         dto.setStatus(booking.getStatus());
         dto.setCarName(booking.getCar().getBrand() + " " + booking.getCar().getModel());
         dto.setUserName(booking.getUser().getName());
+        getBookingDTODuration(booking, dto);
+
         return dto;
+    }
+
+    private void getBookingDTODuration(Booking booking, BookingResponseDTO dto) {
+        long durationHours = Duration.between(booking.getStartTime(), booking.getEndTime()).toHours();
+        if (durationHours < 24) {
+            dto.setDuration(durationHours + " hours");
+        } else {
+            long days = durationHours / 24;
+            long hours = durationHours % 24;
+            dto.setDuration(days + " days " + hours + " hours");
+        }
     }
 }

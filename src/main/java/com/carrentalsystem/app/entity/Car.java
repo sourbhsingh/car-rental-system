@@ -38,7 +38,7 @@ public class Car {
     @NotNull(message = "Fuel type is required")
     private FuelType fuelType;
 
-    private boolean isAvailable;
+    private boolean available;
 
     @Size(max = 500)
     private String description;

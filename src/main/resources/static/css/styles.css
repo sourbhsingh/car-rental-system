@@ -6,13 +6,15 @@ body, html {
 }
 
 .hero-section {
-    background: url('/static/img/landing.png') no-repeat center center/cover;
     height: 100vh;
     position: relative;
 }
 
 .overlay {
-    background: rgba(0, 0, 0, 0.6);
+    background-size:80%;        /* or 'contain' or specific size like '100% 100%' */
+    background: url("../img/landing.png") no-repeat fixed center center;
+    backdrop-filter:  blur(5px) opacity(0.4);
+    background-color: rgba(55, 55, 55, 0.8);
     height: 100%;
     color: #fff;
     display: flex;
@@ -24,11 +26,12 @@ body, html {
     display: flex;
     justify-content: space-between;
     padding: 1.5rem 3rem;
+    background-color: rgba(55, 55, 55, 0.8);
     align-items: center;
 }
 
 .logo {
-    height: 50px;
+    height: 65px;
 }
 
 .nav-btn {
@@ -45,6 +48,8 @@ body, html {
 .hero-content {
     text-align: center;
     padding-bottom: 80px;
+    background-color: rgba(55, 55, 55, 0.8);
+
 }
 
 .title {
@@ -107,7 +112,8 @@ body, html {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(120deg, #f4f4f4, #eaeaea);
+    background-color: rgba(55, 55, 55, 0.8);
+
 }
 
 .form-card {
@@ -121,7 +127,7 @@ body, html {
 }
 
 .form-logo {
-    height: 60px;
+    height: 80px;
     margin-bottom: 1rem;
 }
 
@@ -194,62 +200,30 @@ input:focus {
     border: 2px solid #ffdb58;
     color: #000000;
 }
-/* Optional darker theme for admin page */
-.admin-theme {
-    background: linear-gradient(120deg, #2c3e50, #34495e);
+
+
+.alert {
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 500;
 }
 
-.admin-theme .form-card {
-    background-color: #ffffff;
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
 }
 
-.admin-theme .form-subtext {
-    color: #888;
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
 }
-.dashboard-header {
-    background-color: #2c3e50;
-    color: white;
-    padding: 1rem 2rem;
+.form-container.admin-theme {
+    min-height: 100vh;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #e9e4f0 100%);
+    background-attachment: fixed;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
-
-.dashboard-header .logo {
-    height: 50px;
-}
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    padding: 2rem;
-}
-
-.dashboard-card {
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-    text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
-    text-decoration: none;
-    color: inherit;
-}
-
-.dashboard-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-}
-
-.dashboard-card h2 {
-    margin-bottom: 0.5rem;
-    font-size: 1.4rem;
-    color: #2c3e50;
-}
-
-.dashboard-card p {
-    font-size: 0.95rem;
-    color: #666;
-}
-
