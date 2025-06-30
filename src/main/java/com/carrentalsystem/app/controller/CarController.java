@@ -3,6 +3,7 @@ package com.carrentalsystem.app.controller;
 import com.carrentalsystem.app.dto.CarDTO;
 import com.carrentalsystem.app.dto.CarUploadDTO;
 import com.carrentalsystem.app.entity.CarImage;
+import com.carrentalsystem.app.helper.CarType;
 import com.carrentalsystem.app.helper.FuelType;
 import com.carrentalsystem.app.service.CarService;
 import jakarta.validation.Valid;
@@ -33,10 +34,13 @@ public class CarController {
         return "admin/cars";
     }
 
+
     @GetMapping("/add")
     public String showAddCarForm(Model model) {
         model.addAttribute("car", new CarUploadDTO());
         model.addAttribute("fuelTypes", FuelType.values());
+        model.addAttribute("type",  CarType.values());
+        model.addAttribute("imageFiles", List.of());
         return "admin/addcar";
     }
 

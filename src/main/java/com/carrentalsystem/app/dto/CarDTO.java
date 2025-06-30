@@ -1,5 +1,6 @@
 package com.carrentalsystem.app.dto;
 
+import com.carrentalsystem.app.helper.CarType;
 import com.carrentalsystem.app.helper.FuelType;
 import lombok.Data;
 
@@ -11,7 +12,7 @@ public class CarDTO {
     private String brand;
     private String model;
     private String color;
-    private String type;
+    private CarType type;
     private FuelType fuelType;
     private boolean available;
     private String description;

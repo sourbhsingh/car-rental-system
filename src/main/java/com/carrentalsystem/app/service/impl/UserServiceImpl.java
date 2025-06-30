@@ -21,6 +21,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+
     @Override
     public UserDTO getUserById(Integer id) {
         User user = userRepository.findById(id)
@@ -67,6 +68,12 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.deleteById(userId);
     }
+
+    @Override
+    public UserDTO getCurrentUser() {
+        return null;
+    }
+
 
     private UserDTO mapToDTO(User user) {
         UserDTO dto = new UserDTO();

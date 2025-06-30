@@ -1,6 +1,8 @@
 package com.carrentalsystem.app.repository;
 
+import com.carrentalsystem.app.dto.CarDTO;
 import com.carrentalsystem.app.entity.Car;
+import com.carrentalsystem.app.helper.CarType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +16,6 @@ public interface CarRepository extends JpaRepository<Car, Integer> {
 
     @Override
     void deleteById(Integer integer);
+
+    List<Car> findByType(CarType type);
 }

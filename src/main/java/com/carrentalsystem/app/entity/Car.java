@@ -1,5 +1,6 @@
 package com.carrentalsystem.app.entity;
 
+import com.carrentalsystem.app.helper.CarType;
 import com.carrentalsystem.app.helper.FuelType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -31,8 +32,9 @@ public class Car {
     @NotBlank(message = "Color is required")
     private String color;
 
+    @Enumerated(EnumType.STRING)
     @NotBlank(message = "Type is required")
-    private String type;
+    private CarType type;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Fuel type is required")

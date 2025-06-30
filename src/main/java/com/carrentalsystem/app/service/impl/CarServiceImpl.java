@@ -5,6 +5,7 @@ import com.carrentalsystem.app.dto.CarUploadDTO;
 import com.carrentalsystem.app.entity.Car;
 import com.carrentalsystem.app.entity.CarImage;
 import com.carrentalsystem.app.exception.ResourceNotFoundException;
+import com.carrentalsystem.app.helper.CarType;
 import com.carrentalsystem.app.repository.CarImageRepository;
 import com.carrentalsystem.app.repository.CarRepository;
 import com.carrentalsystem.app.service.CarService;
@@ -30,6 +31,7 @@ public class CarServiceImpl implements CarService {
 
     private final CarRepository carRepository;
     private final CarImageRepository carImageRepository;
+
 
     @Value("${car.upload.dir}")
     private String uploadDir;
@@ -82,6 +84,12 @@ public class CarServiceImpl implements CarService {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Car not found for delete with ID: " + id));
         carRepository.delete(car);
+    }
+
+    @Override
+    public List<CarDTO> getCarByType(CarType type) {
+
+       return carRepository.findByType(type).stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     @Override

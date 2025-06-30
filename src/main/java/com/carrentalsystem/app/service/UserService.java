@@ -13,4 +13,5 @@ public interface UserService {
     UserDTO registerUser(User user);
     boolean authenticateUser(UserLoginDTO loginDTO);
     void deleteUser(Integer userId);
+    UserDTO getCurrentUser();
 }

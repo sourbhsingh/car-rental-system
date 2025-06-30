@@ -3,9 +3,11 @@ package com.carrentalsystem.app.controller;
 import com.carrentalsystem.app.dto.BookingRequestDTO;
 import com.carrentalsystem.app.dto.BookingResponseDTO;
 import com.carrentalsystem.app.dto.PaymentRequestDTO;
+import com.carrentalsystem.app.dto.UserDTO;
 import com.carrentalsystem.app.entity.Booking;
 import com.carrentalsystem.app.entity.Car;
 import com.carrentalsystem.app.helper.BookingStatus;
+import com.carrentalsystem.app.helper.CarType;
 import com.carrentalsystem.app.service.BookingService;
 import com.carrentalsystem.app.service.CarService;
 import com.carrentalsystem.app.service.PaymentService;
@@ -33,15 +35,18 @@ public class UserController {
     private final PaymentService paymentService;
 
     @GetMapping("/dashboard")
-    public String userDashboard() {
+    public String userDashboard(Model model) {
+        UserDTO user = userService.getUserById(1);
+        model.addAttribute("userName", user.getName());
+        model.addAttribute("availableCars", carService.getAllAvailableCars());
+        model.addAttribute("bookings", bookingService.getBookingsByUserId(user.getId()));// CURRENT USER SHOULD GET FROM SESSION
+        model.addAttribute("suvCars", carService.getCarByType(CarType.SUV));
+        model.addAttribute("hatchbackCars", carService.getCarByType(CarType.HATCHBACK));
+        model.addAttribute("sedanCars", carService.getCarByType(CarType.SEDAN));
         return "user/dashboard";
     }
 
-    @GetMapping("/cars")
-    public String listAvailableCars(Model model) {
-        model.addAttribute("cars", carService.getAllAvailableCars());
-        return "user/cars";
-    }
+
 
     @GetMapping("/book/{carId}")
     public String showBookingForm(@PathVariable Integer carId, Model model) {
