@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class AdminController {
 
         model.addAttribute("bookingsCount", bookingsCount);
         model.addAttribute("totalProfit", totalProfit);
+        model.addAttribute("totalCarsCount", carService.getAllCars().size());
         model.addAttribute("availableCarsCount", availableCarsCount);
         model.addAttribute("recentBookings", recentBookings);
 
@@ -44,7 +46,14 @@ public class AdminController {
         model.addAttribute("users", users);
         return "admin/users";
     }
-
+ @GetMapping("users/{id}")
+    public String viewUserDetails(@PathVariable Integer id, Model model) {
+        UserDTO user = userService.getUserById(id);
+        List<BookingResponseDTO> bookings = bookingService.getBookingsByUserId(id);
+        model.addAttribute("user", user);
+        model.addAttribute("bookings", bookings);
+        return "admin/userDetails";
+    }
 
     @GetMapping("/allbookings")
     public String getAllBookings(Model model) {

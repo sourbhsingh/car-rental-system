@@ -1,10 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Book Car | RideVia</title>
+    <link rel="stylesheet" th:href="@{/css/user.css}">
 </head>
-<body>
+<body class="user-dashboard">
+<main class="dashboard-content">
+    <h2>🚗 Book Your Car</h2>
 
+    <div th:if="${car != null}">
+        <p><strong>Car:</strong> <span th:text="${car.brand + ' ' + car.model}"></span></p>
+        <p><strong>Type:</strong> <span th:text="${car.type}"></span></p>
+        <p><strong>Price Per Hour:</strong> ₹<span th:text="${car.pricePerHour}"></span></p>
+    </div>
+
+    <form id="bookingForm" th:action="@{/book}" th:object="${bookingRequest}" method="post" style="max-width: 500px;">
+        <input type="hidden" th:field="*{carId}" />
+
+        <label>Start Time:</label>
+        <input type="datetime-local" th:field="*{startTime}" id="startTime" required/><br/><br/>
+
+        <label>End Time:</label>
+        <input type="datetime-local" th:field="*{endTime}" id="endTime" required/><br/><br/>
+
+        <p id="error" style="color:red;"></p>
+
+        <button type="submit" class="btn">✅ Confirm Booking</button>
+    </form>
+</main>
+
+<script>
+    document.getElementById("bookingForm").addEventListener("submit", function (event) {
+        const now = new Date();
+        const startTime = new Date(document.getElementById("startTime").value);
+        const endTime = new Date(document.getElementById("endTime").value);
+        const error = document.getElementById("error");
+
+        error.textContent = "";
+
+        if (startTime <= now) {
+            event.preventDefault();
+            error.textContent = "Start time must be in the future.";
+            return;
+        }
+
+        const diffInMs = endTime - startTime;
+        const diffInHours = diffInMs / (1000 * 60 * 60);
+
+        if (diffInHours < 2) {
+            event.preventDefault();
+            error.textContent = "End time must be at least 2 hours after start time.";
+        }
+    });
+</script>
 </body>
 </html>

@@ -2,9 +2,15 @@ package com.carrentalsystem.app.controller;
 
 import com.carrentalsystem.app.dto.BookingRequestDTO;
 import com.carrentalsystem.app.dto.BookingResponseDTO;
+import com.carrentalsystem.app.dto.CarDTO;
+import com.carrentalsystem.app.dto.UserDTO;
 import com.carrentalsystem.app.service.BookingService;
+import com.carrentalsystem.app.service.CarService;
+import com.carrentalsystem.app.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,33 +20,49 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/bookings")
+
 public class BookingController {
 
     private final BookingService bookingService;
+    private final CarService carService;
+    private final UserService userService;
     // ✅ ADMIN: View all bookings
-    @GetMapping
+    @GetMapping("admin/bookings")
     public String getAllBookings(Model model) {
         List<BookingResponseDTO> bookings = bookingService.getAllBookings();
         model.addAttribute("bookings", bookings);
         return "admin/allbookings";
     }
     // ✅ USER: Book a car
-    @PostMapping("/create")
+    @PostMapping("bookings/create")
     public String createBooking(@ModelAttribute @Valid BookingRequestDTO bookingRequestDTO,
                                 RedirectAttributes redirectAttributes) {
         try {
             bookingService.createBooking(bookingRequestDTO);
-            redirectAttributes.addFlashAttribute("success", "Booking successful!");
+           System.out.println("Success");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Failed to book: " + e.getMessage());
+            System.out.println( "Failed to book: " + e.getMessage()  +"  Error becz -CarID "+ bookingRequestDTO.getCarId() +" \t UserId"+bookingRequestDTO.getUserId() +" at " + e.getStackTrace()[0]);
+            e.printStackTrace();
         }
 
-        return "redirect:/user/bookings";
+        return "redirect:/user/dashboard";
+    }
+    @GetMapping("/user/book")
+    public String showBookingForm(@RequestParam(name = "id", required = false) Integer carId,
+                                  Model model) {
+        BookingRequestDTO bookingRequestDTO = new BookingRequestDTO();
+        if (carId != null) {
+            bookingRequestDTO.setCarId(carId);
+            model.addAttribute("car", carService.getCarById(carId)); // for car info display
+        }
+        bookingRequestDTO.setUserId(2);
+
+        model.addAttribute("bookingRequest", bookingRequestDTO);
+        return "user/book"; // This will render user/book.html
     }
 
     // ✅ USER: View my bookings
-    @GetMapping("/user/{userId}")
+    @GetMapping("bookings/user/{userId}")
     public String getUserBookings(@PathVariable("userId") Integer userId, Model model) {
         List<BookingResponseDTO> bookings = bookingService.getBookingsByUserId(userId);
         model.addAttribute("bookings", bookings);
@@ -48,7 +70,7 @@ public class BookingController {
     }
 
     // ✅ USER: Cancel booking
-    @GetMapping("/cancel/{id}")
+    @GetMapping("bookings/cancel/{id}")
     public String cancelBooking(@PathVariable("id") Integer bookingId,
                                 RedirectAttributes redirectAttributes) {
         try {
@@ -70,4 +92,39 @@ public class BookingController {
         model.addAttribute("booking", booking);
         return "admin/booking-details";
     }
+
+    @GetMapping("/book/{carId}")
+    public String showBookingForm(@PathVariable Integer carId,
+                                  @AuthenticationPrincipal UserDetails userDetails,
+                                  Model model) {
+        UserDTO user = userService.getUserByEmail(userDetails.getUsername());
+
+        CarDTO car = carService.getCarById(carId);
+        BookingRequestDTO bookingRequest = new BookingRequestDTO();
+        bookingRequest.setCarId(carId); // set carId directly
+        bookingRequest.setUserId(user.getId()); // set userId from session
+
+        model.addAttribute("car", car);
+        model.addAttribute("bookingRequest", bookingRequest);
+
+        return "user/book";
+    }
+
+   @PostMapping("/book")
+   public String bookCar(@ModelAttribute("bookingRequest") BookingRequestDTO dto,
+                         @AuthenticationPrincipal UserDetails userDetails) {
+       try {
+           // Ensure userId is correct from session
+           UserDTO user = userService.getUserByEmail(userDetails.getUsername());
+           dto.setUserId(user.getId());
+
+           bookingService.createBooking(dto);
+           System.out.println("Booking created successfully for userId: " + user.getId() + ", carId: " + dto.getCarId());
+       } catch (Exception e) {
+           System.out.println("Failed to create booking: " + e.getMessage() + " at " + e.getStackTrace()[0]);
+           e.printStackTrace();
+       }
+       return "redirect:/user/dashboard";
+   }
+
 }

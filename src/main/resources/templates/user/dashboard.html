@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8" />
     <title>User Dashboard | RideVia</title>
@@ -65,7 +65,10 @@
         <div class="card-scroll" th:if="${!#lists.isEmpty(availableCars)}">
             <a th:each="car : ${availableCars}" th:href="@{/user/cars/view/{id}(id=${car.id})}" class="card-link">
                 <div class="card">
-                    <img th:src="${car.imageUrls[0]}" alt="Car Image" class="card-img" />
+                    <img th:if="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
+                         th:src="${car.imageUrls[0]}" alt="Car Image" />
+                    <img th:unless="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
+                         src="/img/ridevia_logo.webp" alt="Default Image" />
                     <h4 th:text="${car.brand + ' ' + car.model}"></h4>
                     <p th:text="${car.type} + ' | ₹' + ${car.pricePerHour} + '/hr'"></p>
                 </div>
@@ -83,10 +86,14 @@
         <div class="card-scroll" th:if="${!#lists.isEmpty(suvCars)}">
             <a th:each="car : ${suvCars}" th:href="@{/user/cars/view/{id}(id=${car.id})}" class="card-link">
                 <div class="card">
-                    <img th:src="${car.imageUrls[0]}" alt="SUV" class="card-img" />
+                    <img th:if="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
+                         th:src="${car.imageUrls[0]}" alt="Car Image" />
+                    <img th:unless="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
+                         src="/img/ridevia_logo.webp" alt="Default Image" />
                     <h4 th:text="${car.brand + ' ' + car.model}"></h4>
-                    <p th:text="'₹' + ${car.pricePerHour} + '/hr'"></p>
+                    <p th:text="${car.type} + ' | ₹' + ${car.pricePerHour} + '/hr'"></p>
                 </div>
+
             </a>
         </div>
         <p class="empty-note" th:if="${#lists.isEmpty(suvCars)}">No SUV cars available.</p>
@@ -101,10 +108,14 @@
         <div class="card-scroll" th:if="${!#lists.isEmpty(hatchbackCars)}">
             <a th:each="car : ${hatchbackCars}" th:href="@{/user/cars/view/{id}(id=${car.id})}" class="card-link">
                 <div class="card">
-                    <img th:src="${car.imageUrls[0]}" alt="Hatchback" class="card-img" />
+                    <img th:if="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
+                         th:src="${car.imageUrls[0]}" alt="Car Image" />
+                    <img th:unless="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
+                         src="/img/ridevia_logo.webp" alt="Default Image" />
                     <h4 th:text="${car.brand + ' ' + car.model}"></h4>
-                    <p th:text="'₹' + ${car.pricePerHour} + '/hr'"></p>
+                    <p th:text="${car.type} + ' | ₹' + ${car.pricePerHour} + '/hr'"></p>
                 </div>
+
             </a>
         </div>
         <p class="empty-note" th:if="${#lists.isEmpty(hatchbackCars)}">No hatchback cars available.</p>
@@ -119,10 +130,14 @@
         <div class="card-scroll" th:if="${!#lists.isEmpty(sedanCars)}">
             <a th:each="car : ${sedanCars}" th:href="@{/user/cars/view/{id}(id=${car.id})}" class="card-link">
                 <div class="card">
-                    <img th:src="${car.imageUrls[0]}" alt="Sedan" class="card-img" />
+                    <img th:if="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
+                         th:src="${car.imageUrls[0]}" alt="Car Image" />
+                    <img th:unless="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
+                         src="/img/ridevia_logo.webp" alt="Default Image" />
                     <h4 th:text="${car.brand + ' ' + car.model}"></h4>
-                    <p th:text="'₹' + ${car.pricePerHour} + '/hr'"></p>
+                    <p th:text="${car.type} + ' | ₹' + ${car.pricePerHour} + '/hr'"></p>
                 </div>
+
             </a>
         </div>
         <p class="empty-note" th:if="${#lists.isEmpty(sedanCars)}">No sedan cars available.</p>

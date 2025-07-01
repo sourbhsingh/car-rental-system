@@ -18,4 +18,6 @@ public interface BookingService {
     double calculateTotalProfit();
 
     List<BookingResponseDTO> getRecentBookings(int i);
+
+    List<BookingResponseDTO> getUpcomingBookingsByUser(Integer id);
 }

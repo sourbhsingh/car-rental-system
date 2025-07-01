@@ -40,17 +40,19 @@ public class BookingServiceImpl implements BookingService {
         Car car = carRepository.findById(dto.getCarId())
                 .orElseThrow(() -> new ResourceNotFoundException("Car not found with ID: " + dto.getCarId()));
 
-        if (!car.isAvailable()) {
-            throw new IllegalStateException("Car is not available for booking");
-        }
+
 
         Booking booking = new Booking();
         booking.setUser(user);
         booking.setCar(car);
         booking.setStartTime(dto.getStartTime());
         booking.setEndTime(dto.getEndTime());
-        booking.setStatus(BookingStatus.CONFIRMED);
-
+        if (!car.isAvailable()) {
+        booking.setStatus(BookingStatus.PENDING);
+        }
+        else {
+            booking.setStatus(BookingStatus.CONFIRMED);
+        }
         long hours = Duration.between(dto.getStartTime(), dto.getEndTime()).toHours();
         double total = hours * car.getPricePerHour();
 
@@ -162,6 +164,19 @@ public class BookingServiceImpl implements BookingService {
                     return dto;
                 })
                 .toList();
+    }
+
+    @Override
+    public List<BookingResponseDTO> getUpcomingBookingsByUser(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+
+        List<Booking> bookings = bookingRepository.findByUserAndStatus(user, BookingStatus.CONFIRMED);
+
+        return bookings.stream()
+                .filter(booking -> booking.getStartTime().isAfter(java.time.LocalDateTime.now()))
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
 

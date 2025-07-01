@@ -2,6 +2,7 @@ package com.carrentalsystem.app.controller;
 
 import com.carrentalsystem.app.dto.UserLoginDTO;
 import com.carrentalsystem.app.entity.User;
+import com.carrentalsystem.app.helper.Role;
 import com.carrentalsystem.app.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,73 +20,51 @@ public class AuthController {
     @Autowired
     private final UserService userService;
 
-    // GET - Registration page
+    // GET - Show registration form
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
         model.addAttribute("user", new User());
         return "register";
     }
 
-    // POST - Register user
+    // POST - Handle registration
     @PostMapping("/register")
+
     public String registerUser(@Valid @ModelAttribute("user") User user,
                                BindingResult result,
-                               RedirectAttributes redirectAttributes) {
+                               RedirectAttributes redirectAttributes,
+                               Model model) {
         if (result.hasErrors()) {
-            return "register"; // Thymeleaf template name
+            System.out.println("Validation errors occurred during registration.");
+            return "register"; // Shows the form with validation messages
         }
 
-        userService.registerUser(user);
+        if (userService.isEmailExists(user.getEmail())) {
+            model.addAttribute("emailExists", true);
+            return "register"; // Show error message on same page instead of redirecting
+        }
+
+        user.setRole(Role.USER);
+        userService.registerUser(user);  // Should handle password encoding
         redirectAttributes.addFlashAttribute("successMessage", "Registration successful! Please log in.");
         return "redirect:/auth/login";
     }
 
 
-    // GET - Login page
+
+
     @GetMapping("/login")
-    public String showLoginForm(Model model) {
+    public String showUserLoginForm(Model model) {
         model.addAttribute("userLoginDTO", new UserLoginDTO());
-        return "login";
+        return "login"; // templates/login.html
     }
+
     @GetMapping("/admin/login")
     public String showAdminLoginForm(Model model) {
         model.addAttribute("userLoginDTO", new UserLoginDTO());
-        return "admin/login";
-    }
-    @PostMapping("/admin/login")
-    public String loginAdmin(@ModelAttribute("userLoginDTO") UserLoginDTO loginDTO,
-                            Model model) {
-
-        boolean isAuthenticated = userService.authenticateUser(loginDTO);
-
-        if (isAuthenticated) {
-            // Normally, session logic goes here (Spring Security or manual)
-            return "redirect:/admin/dashboard";
-        } else {
-            model.addAttribute("error", "Invalid email or password");
-            return "admin/login";
-        }
-    }
-    // POST - Login process
-    @PostMapping("/login")
-    public String loginUser(@ModelAttribute("userLoginDTO") UserLoginDTO loginDTO,
-                            Model model) {
-
-        boolean isAuthenticated = userService.authenticateUser(loginDTO);
-
-        if (isAuthenticated) {
-            // Normally, session logic goes here (Spring Security or manual)
-            return "redirect:/user/dashboard";
-        } else {
-            model.addAttribute("error", "Invalid email or password");
-            return "login";
-        }
+        return "admin/login"; // templates/admin/login.html
     }
 
-    // GET - Logout logic (optional placeholder)
-    @GetMapping("/logout")
-    public String logoutUser() {
-        // Custom logout logic or clear session (if you maintain one manually)
-        return "redirect:/auth/login";
-    }
+
+
 }

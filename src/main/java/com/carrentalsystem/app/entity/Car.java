@@ -53,4 +53,15 @@ public class Car {
 
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Booking> bookings;
+
+    public Car(String toyotaCamry, String smoothAndReliable, double v, CarType carType, boolean b, Object o) {
+        this.brand = toyotaCamry;
+        this.model = "Camry";
+        this.color = "Blue";
+        this.type = carType;
+        this.fuelType = FuelType.PETROL;
+        this.available = b;
+        this.description = smoothAndReliable;
+        this.pricePerHour = v;
+    }
 }

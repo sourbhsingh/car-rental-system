@@ -8,32 +8,23 @@ public class PageController {
 
     @GetMapping("/")
     public String home() {
-        return "index";
+        return "index"; // ✅ Landing page
     }
 
-    @GetMapping("/login")
-    public String redirectToLogin() {
-        return "redirect:/auth/login";
-    }
-
-    @GetMapping("/register")
-    public String redirectToRegister() {
-        return "redirect:/auth/register";
-    }
-
-    @GetMapping("/admin/login")
-    public String redirectToAdminLogin() {
-        return "redirect:/auth/admin/login";
-    }
-    // Optional: custom 403 access denied page
     @GetMapping("/403")
     public String accessDenied() {
-        return "error/403";
+        return "error/403"; // ✅ Custom forbidden page
     }
-
-    // Optional: default error page
+    @GetMapping("/404")
+    public String noContentFound() {
+        return "error/404"; // ✅ Custom forbidden page
+    }
+    @GetMapping("/500")
+    public String internalServerError() {
+        return "error/500"; // ✅ Custom forbidden page
+    }
     @GetMapping("/error")
     public String error() {
-        return "error/error";
+        return "error/error"; // ✅ General error fallback
     }
 }

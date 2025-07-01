@@ -1,13 +1,15 @@
 package com.carrentalsystem.app.service.impl;
 
 import com.carrentalsystem.app.dto.UserDTO;
-import com.carrentalsystem.app.dto.UserLoginDTO;
 import com.carrentalsystem.app.entity.User;
 import com.carrentalsystem.app.exception.ResourceNotFoundException;
+import com.carrentalsystem.app.helper.Role;
 import com.carrentalsystem.app.repository.UserRepository;
 import com.carrentalsystem.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public UserDTO getUserById(Integer id) {
@@ -31,10 +35,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserByEmail(String email) {
-        User user = userRepository.findAll()
-                .stream()
-                .filter(u -> u.getEmail().equalsIgnoreCase(email))
-                .findFirst()
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
         return mapToDTO(user);
     }
@@ -43,23 +44,19 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
+                .filter(u-> u.getRole().name().equals(Role.USER.name()))
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDTO registerUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.USER); // default role
         User saved = userRepository.save(user);
         return mapToDTO(saved);
     }
 
-    @Override
-    public boolean authenticateUser(UserLoginDTO loginDTO) {
-        return userRepository.findAll()
-                .stream()
-                .anyMatch(user -> user.getEmail().equalsIgnoreCase(loginDTO.getEmail())
-                        && user.getPassword().equals(loginDTO.getPassword()));
-    }
 
     @Override
     public void deleteUser(Integer userId) {
@@ -69,11 +66,13 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(userId);
     }
 
-    @Override
-    public UserDTO getCurrentUser() {
-        return null;
-    }
 
+
+    @Override
+    public boolean isEmailExists(String email) {
+        User u = userRepository.findByEmail(email).orElse(null) ;
+        return u != null;
+    }
 
     private UserDTO mapToDTO(User user) {
         UserDTO dto = new UserDTO();
