@@ -27,55 +27,58 @@ private  final UserService userService;
 
 
     @GetMapping
-    public String listAvailableCars(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String sort,
-            @AuthenticationPrincipal UserDetails userDetails,
-            Model model) {
+public String listAvailableCars(
+        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String type,
+        @RequestParam(required = false) String sort,
+        @RequestParam(required = false, defaultValue = "false") boolean availableOnly,
+        @AuthenticationPrincipal UserDetails userDetails,
+        Model model) {
 
-        List<CarDTO> cars = carService.getAllAvailableCars();
+    List<CarDTO> cars = carService.getAllCars();
 
-        String email = userDetails.getUsername();
-        UserDTO user = userService.getUserByEmail(email);
+    String email = userDetails.getUsername();
+    UserDTO user = userService.getUserByEmail(email);
 
-        // Get username
-        model.addAttribute("userName", user.getName());
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            String lowerKeyword = keyword.toLowerCase();
-            cars = cars.stream()
-                    .filter(car -> car.getBrand().toLowerCase().contains(lowerKeyword)
-                            || car.getModel().toLowerCase().contains(lowerKeyword))
-                    .collect(Collectors.toList());
-        }
-
-        if (type != null && !type.trim().isEmpty() && CarType.isValidType(type)) {
-            cars = cars.stream().filter(car-> car.getType().getType().equalsIgnoreCase(type)).collect(Collectors.toList());
-        }
-
-
-        if ("asc".equalsIgnoreCase(sort)) {
-            cars.sort(Comparator.comparingDouble(CarDTO::getPricePerHour));
-        } else if ("desc".equalsIgnoreCase(sort)) {
-            cars.sort(Comparator.comparingDouble(CarDTO::getPricePerHour).reversed());
-        }
-
-        model.addAttribute("cars", cars);
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("type", type);
-        model.addAttribute("sort", sort);
-        model.addAttribute("carTypes", CarType.values());
-
-        return "user/cars";
+    model.addAttribute("userName", user.getName());
+    if (keyword != null && !keyword.trim().isEmpty()) {
+        String lowerKeyword = keyword.toLowerCase();
+        cars = cars.stream()
+                .filter(car -> car.getBrand().toLowerCase().contains(lowerKeyword)
+                        || car.getModel().toLowerCase().contains(lowerKeyword))
+                .collect(Collectors.toList());
     }
 
+    if (type != null && !type.trim().isEmpty() && CarType.isValidType(type)) {
+        cars = cars.stream().filter(car -> car.getType().getType().equalsIgnoreCase(type)).collect(Collectors.toList());
+    }
+
+    if (availableOnly) {
+        cars = cars.stream().filter(CarDTO::isAvailable).collect(Collectors.toList());
+    }
+
+    if ("asc".equalsIgnoreCase(sort)) {
+        cars.sort(Comparator.comparingDouble(CarDTO::getPricePerHour));
+    } else if ("desc".equalsIgnoreCase(sort)) {
+        cars.sort(Comparator.comparingDouble(CarDTO::getPricePerHour).reversed());
+    }
+
+    model.addAttribute("cars", cars);
+    model.addAttribute("keyword", keyword);
+    model.addAttribute("type", type);
+    model.addAttribute("sort", sort);
+    model.addAttribute("carTypes", CarType.values());
+    model.addAttribute("availableOnly", availableOnly);
+
+    return "user/cars";
+}
 
     // 🗂 All Cars List (for admin or full view)
     @GetMapping("/all")
     public String listAllCars(Model model) {
         List<CarDTO> allCars = carService.getAllCars();
         model.addAttribute("cars", allCars);
-        return "user/allcars";
+        return "user/cars";
     }
 
     // 🔍 View Car Details

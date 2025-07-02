@@ -4,6 +4,7 @@ import com.carrentalsystem.app.dto.BookingRequestDTO;
 import com.carrentalsystem.app.dto.BookingResponseDTO;
 import com.carrentalsystem.app.entity.Booking;
 import com.carrentalsystem.app.entity.Car;
+import com.carrentalsystem.app.entity.CarImage;
 import com.carrentalsystem.app.entity.User;
 import com.carrentalsystem.app.exception.ResourceNotFoundException;
 import com.carrentalsystem.app.helper.BookingStatus;
@@ -189,6 +190,12 @@ public class BookingServiceImpl implements BookingService {
         dto.setStatus(booking.getStatus());
         dto.setCarName(booking.getCar().getBrand() + " " + booking.getCar().getModel());
         dto.setUserName(booking.getUser().getName());
+        if (booking.getCar().getImages() != null) {
+            List<String> urls = booking.getCar().getImages().stream()
+                    .map(CarImage::getImageUrl)
+                    .collect(Collectors.toList());
+            dto.setImageUrls(urls);
+        }
         getBookingDTODuration(booking, dto);
 
         return dto;

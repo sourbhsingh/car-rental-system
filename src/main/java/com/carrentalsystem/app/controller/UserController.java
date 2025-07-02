@@ -39,6 +39,7 @@ public class UserController {
 
         // Get upcoming bookings
         List<BookingResponseDTO> upcomingBookings = bookingService.getUpcomingBookingsByUser(user.getId());
+
         System.out.println(upcomingBookings.toString()+ "  Upcoming Bookings");
         model.addAttribute("upcomingBookings", upcomingBookings);
 

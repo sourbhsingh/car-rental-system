@@ -71,6 +71,7 @@ public class CarController {
         CarDTO carDTO = carService.getCarById(id);
         model.addAttribute("car", carDTO);
         model.addAttribute("carId", id);
+        model.addAttribute("CarType", CarType.values());
         model.addAttribute("fuelTypes", FuelType.values());
         return "admin/edit";
     }

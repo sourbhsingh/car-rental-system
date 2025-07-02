@@ -1,10 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Bookings | RideVia</title>
+    <link rel="stylesheet" th:href="@{/css/user.css}" />
+    <link rel="icon" th:href="@{/img/favicon.ico}" type="image/x-icon" />
+
 </head>
-<body>
+<body class="user-dashboard">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="nv-lg">
+        <div class="logo">
+            <img src="/img/ridevia_logo.webp" alt="RideVia" />
+        </div>
+        <nav>
+            <ul>
+                <li><a th:href="@{/user/dashboard}" >Dashboard</a></li>
+                <li><a th:href="@{/user/book}">Book</a></li>
+                <li><a th:href="@{/user/bookings}" class="active">Your Bookings</a></li>
+                <li><a th:href="@{/user/cars}">Cars</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- User Info & Actions -->
+    <div class="user-actions">
+        <div class="user-info">
+            <div class="avatar">👤</div>
+            <p class="username" th:text="${userName}">User</p>
+        </div>
+        <a th:href="@{/user/profile}" class="action-link">🛠 Update Profile</a>
+        <a th:href="@{/auth/logout}" class="logout-link">🚪 Logout</a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="user-booking-content">
+    <h2>📋 My Bookings</h2>
+    <!-- Flash Messages -->
+    <div class="flash-message success" th:if="${success}" th:text="${success}"></div>
+    <div class="flash-message error" th:if="${error}" th:text="${error}"></div>
+    <section class="user-booking-card-list">
+        <div th:each="booking : ${bookings}" class="user-booking-card">
+            <div class="user-booking-header">
+                <div>
+                    <h3 th:text="'Booking ID: #' + ${booking.id}"></h3>
+                    <p th:text="${booking.carName}"></p>
+                </div>
+                <span class="user-booking-badge"
+                      th:classappend="${booking.status == 'COMPLETED' ? ' success' :
+                                      (booking.status == 'CANCELLED' ? ' danger' :
+                                      (booking.status == 'CONFIRMED' ? ' warning' : ''))}"
+                      th:text="${booking.status}">Status</span>
+            </div>
+
+            <div class="user-booking-body">
+                <p><strong>From:</strong> <span th:text="${#temporals.format(booking.startTime, 'dd MMM yyyy, hh:mm a')}"></span></p>
+                <p><strong>To:</strong> <span th:text="${#temporals.format(booking.endTime, 'dd MMM yyyy, hh:mm a')}"></span></p>
+                <p><strong>Duration:</strong> <span th:text="${booking.duration}"></span></p>
+                <p><strong>Total Paid:</strong> ₹<span th:text="${booking.totalPrice}"></span></p>
+                <p><strong>Booking Status:</strong> <span th:text="${booking.status}"></span></p>
+
+
+
+            </div>
+            <div class="user-booking-actions">
+                <!-- Cancel Button: For Pending or Future Confirmed Bookings -->
+                <a th:if="${booking.status == 'PENDING' or (booking.status == 'CONFIRMED' and booking.startTime > T(java.time.LocalDateTime).now())}"
+                   th:href="@{'/bookings/cancel/' + ${booking.id}}"
+                   class="btn danger small">❌ Cancel</a>
+
+                <!-- Return Button: For Ongoing Confirmed Bookings -->
+                <a th:if="${booking.status == 'CONFIRMED' and booking.startTime <= T(java.time.LocalDateTime).now()}"
+                   th:href="@{'/return/' + ${booking.id}}"
+                   class="btn primary small">🔁 Return</a>
+
+                <!-- No Action -->
+                <span th:if="${booking.status != 'CONFIRMED' and booking.status != 'PENDING'}" class="text-muted">No actions</span>
+            </div>
+
+        </div>
+
+        <div th:if="${#lists.isEmpty(bookings)}" class="user-empty-note">
+            <p>You haven't booked any cars yet.</p>
+        </div>
+    </section>
+</main>
 
 </body>
 </html>

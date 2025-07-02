@@ -62,10 +62,14 @@ public class BookingController {
     }
 
     // ✅ USER: View my bookings
-    @GetMapping("bookings/user/{userId}")
-    public String getUserBookings(@PathVariable("userId") Integer userId, Model model) {
+    @GetMapping("user/bookings")
+    public String getUserBookings(@AuthenticationPrincipal  UserDetails userDetails, Model model) {
+        UserDTO user = userService.getUserByEmail(userDetails.getUsername());
+        Integer userId = user.getId(); // Get the userId from the UserDTO
+        String userName = user.getName(); // Get the username from UserDTO
         List<BookingResponseDTO> bookings = bookingService.getBookingsByUserId(userId);
         model.addAttribute("bookings", bookings);
+        model.addAttribute("userName", userName); // Add username to the model
         return "user/mybookings";
     }
 

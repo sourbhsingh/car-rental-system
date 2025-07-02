@@ -80,6 +80,7 @@
         </div>
 
         <div class="bottom-row">
+
             <select name="type">
                 <option value="">All Types</option>
                 <option th:each="carType : ${carTypes}"
@@ -88,6 +89,11 @@
                         th:selected="${type == carType.name()}">
                 </option>
             </select>
+
+            <label style="display: flex; align-items: center; gap: 0.3rem;">
+                <input type="checkbox" name="availableOnly" th:checked="${availableOnly}" />
+                Available Only
+            </label>
 
             <select name="sort">
                 <option value="">Sort by Price</option>

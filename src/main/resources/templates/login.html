@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Login | RideVia</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <link rel="icon" th:href="@{/img/favicon.ico}" type="image/x-icon" />
+
 </head>
 
 <body>
@@ -31,12 +33,12 @@
         </form>
 
         <div class="form-footer">
-            New here? <a th:href="@{/register}">Create an account</a>
+            New here? <a th:href="@{/auth/register}">Create an account</a>
         </div>
 
         <div class="form-nav-buttons">
             <a th:href="@{/}" class="btn outline small">← Home</a>
-            <a th:href="@{/admin/login}" class="btn outline small">Admin Login</a>
+            <a th:href="@{/auth/admin/login}" class="btn outline small">Admin Login</a>
         </div>
     </div>
 </div>

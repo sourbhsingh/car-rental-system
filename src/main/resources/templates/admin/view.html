@@ -54,6 +54,8 @@
             font-size: 13px;
         }
     </style>
+    <link rel="icon" th:href="@{/img/favicon.ico}" type="image/x-icon" />
+
 </head>
 <body class="admin-dashboard">
 
@@ -80,7 +82,11 @@
         </div>
 
         <div class="car-details-header">
-            <img th:src="@{${car.imageUrls[0]}}" alt="Car Image" />
+            <img th:if="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
+                 th:src="${car.imageUrls[0]}" alt="Car Image" />
+            <img th:unless="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
+                 src="/img/ridevia_logo.webp" alt="Default Image" />
+
         </div>
 
         <div class="car-info">

@@ -6,6 +6,8 @@
     <title>Edit Car | RideVia</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
     <link rel="stylesheet" th:href="@{/css/admin.css}" />
+    <link rel="icon" th:href="@{/img/favicon.ico}" type="image/x-icon" />
+
 </head>
 <body class="admin-dashboard">
 
@@ -63,9 +65,12 @@
                 <small class="error" th:if="${#fields.hasErrors('color')}" th:errors="*{color}"></small>
             </div>
 
+
             <div class="form-group">
                 <label>Type</label>
-                <input type="text" th:field="*{type}" placeholder="e.g. SUV" required />
+                <select th:field="*{type}" required>
+                    <option th:each="f : ${CarType}" th:value="${f}" th:text="${f}"></option>
+                </select>
                 <small class="error" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></small>
             </div>
         </div>
