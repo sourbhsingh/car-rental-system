@@ -1,5 +1,6 @@
-# Stage 1: Build the application
+# Stage 1: Build the Java application
 FROM openjdk:21-slim AS build
+
 WORKDIR /app
 
 COPY pom.xml ./
@@ -7,6 +8,10 @@ COPY mvnw ./
 COPY .mvn ./.mvn
 COPY src ./src
 
+# 👇 Add this line to fix the permission issue
+RUN chmod +x mvnw
+
+# Now run the Maven build
 RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Run the application
