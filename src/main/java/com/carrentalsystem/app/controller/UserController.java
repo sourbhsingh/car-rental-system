@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -87,17 +88,17 @@ public class UserController {
         PaymentRequestDTO paymentRequest = new PaymentRequestDTO();
         paymentRequest.setAmount(amount);
         model.addAttribute("bookingResponse",bookingResponseDTO);
-        model.addAttribute("paymentRequest", new PaymentRequestDTO());
+        model.addAttribute("paymentRequest", paymentRequest);
         return "user/payment";
     }
     @PostMapping("/payment")
-    public String processPayment(@ModelAttribute PaymentRequestDTO dto) {
+    public String processPayment(@ModelAttribute PaymentRequestDTO dto , BindingResult bindingResult) {
         paymentService.makePayment(dto);
 
         // ✅ Confirm the booking after successful payment
         bookingService.updateBookingStatus(dto.getBookingId(), BookingStatus.CONFIRMED.name());
 
-        return "redirect:/user/simulate";
+        return "redirect:/simulate";
     }
 
 
