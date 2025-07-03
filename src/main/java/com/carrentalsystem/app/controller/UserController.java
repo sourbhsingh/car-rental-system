@@ -86,6 +86,7 @@ public class UserController {
         BookingResponseDTO bookingResponseDTO = bookingService.getBookingById(bookingId);
         double amount = bookingResponseDTO.getTotalPrice();
         PaymentRequestDTO paymentRequest = new PaymentRequestDTO();
+        paymentRequest.setBookingId(bookingId);
         paymentRequest.setAmount(amount);
         model.addAttribute("bookingResponse",bookingResponseDTO);
         model.addAttribute("paymentRequest", paymentRequest);

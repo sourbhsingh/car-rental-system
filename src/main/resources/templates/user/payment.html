@@ -128,7 +128,7 @@
     <!-- Payment Form -->
     <div class="payment-container">
         <form th:action="@{/payment}" th:object="${paymentRequest}" method="post">
-            <input type="hidden" th:field="*{bookingId}" th:value="${bookingId}" />
+            <input type="hidden" th:field="*{bookingId}" />
 
             <div class="form-group">
                 <label class="form-label">Amount (₹)</label>

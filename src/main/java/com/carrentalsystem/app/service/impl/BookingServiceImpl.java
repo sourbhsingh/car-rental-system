@@ -95,7 +95,19 @@ public class BookingServiceImpl implements BookingService {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid booking status: " + newStatus);
         }
-
+        if (booking.getStatus() == BookingStatus.CONFIRMED) {
+            Car car = booking.getCar();
+            if (car != null) {
+                car.setAvailable(false); // Block car until return
+                carRepository.save(car);
+            }
+        } else if (booking.getStatus() == BookingStatus.CANCELLED) {
+            Car car = booking.getCar();
+            if (car != null) {
+                car.setAvailable(true); // Make car available again
+                carRepository.save(car);
+            }
+        }
         Booking updated = bookingRepository.save(booking);
         return mapToDTO(updated);
     }
