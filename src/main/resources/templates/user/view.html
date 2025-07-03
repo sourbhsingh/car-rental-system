@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Car Details | RideVia</title>
     <link rel="icon" th:href="@{/img/favicon.ico}" type="image/x-icon" />
-
     <link rel="stylesheet" th:href="@{/css/user.css}" />
     <style>
         .car-details-container {
@@ -54,6 +53,15 @@
             border-radius: 12px;
             font-size: 13px;
         }
+
+        .notification-text {
+            font-size: 16px;
+            color: #cc0000;
+            background: #ffe6e6;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 25px;
+        }
     </style>
 </head>
 <body class="admin-dashboard">
@@ -73,14 +81,13 @@
         </nav>
     </div>
 
-    <!-- User Info & Actions -->
     <div class="user-actions">
         <div class="user-info">
             <div class="avatar">👤</div>
             <p class="username" th:text="${userName}">User</p>
         </div>
         <a th:href="@{/user/profile}" class="action-link">🛠 Update Profile</a>
-        <a th:href="@{/user/logout}" class="logout-link">🚪 Logout</a>
+        <a th:href="@{/auth/logout}" class="logout-link">🚪 Logout</a>
     </div>
 </aside>
 
@@ -92,13 +99,10 @@
 
         <div class="car-details-header">
             <img th:if="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
-                 th:src="${car.imageUrls[0]}" alt="Car Image" />
+                 th:src="@{${car.imageUrls[0]}}" alt="Car Image" />
             <img th:unless="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
                  src="/img/ridevia_logo.webp" alt="Default Image" />
-
         </div>
-
-
 
         <div class="car-info">
             <p><strong>Brand:</strong> <span th:text="${car.brand}"></span></p>
@@ -113,22 +117,33 @@
             </p>
             <p><strong>Description:</strong> <span th:text="${car.description}"></span></p>
         </div>
-        <!-- Booking Button -->
-        <div class="book-car-button"  style="margin-top: 25px;">
-            <a th:href="@{'/user/book?id='+ ${car.id}}"
-               class="btn"
-               style="background: linear-gradient(135deg, #4e54c8, #2e3a59); color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">
-                🚗 Book This Car
-            </a>
+
+        <!-- Conditional Button or Notification -->
+        <div style="margin-top: 25px;">
+            <div th:if="${car.available}">
+                <a th:href="@{'/user/book?id=' + ${car.id}}"
+                   class="btn"
+                   style="background: linear-gradient(135deg, #4e54c8, #2e3a59); color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 500;">
+                    🚗 Book This Car
+                </a>
+            </div>
+            <div th:unless="${car.available}" class="notification-text">
+                🚫 This car is currently not available. You will be notified once it's back!
+            </div>
         </div>
 
-        <div class="car-gallery" style="margin-top: 20px;">
+        <!-- Gallery -->
+        <div class="car-gallery" style="margin-top: 30px;">
             <h4>All Images</h4>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                <img th:if="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}"
-                 th:src="@{${img}}" alt="Car Image" style="width: 150px; height: 100px; object-fit: cover; border-radius: 6px;" />
-                <p th:if="${#lists.isEmpty(car.imageUrls)}">No cars Image Available </p>
-            </div>
+            <th:block th:if="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}">
+                <img th:each="img : ${car.imageUrls}" th:src="@{${img}}"
+                     alt="Car Image"
+                     style="width: 150px; height: 100px; object-fit: cover; border-radius: 6px; margin-right: 20px;" />
+            </th:block>
+            <th:block th:unless="${car.imageUrls != null and !#lists.isEmpty(car.imageUrls)}">
+                <img src="/img/ridevia_logo.webp" alt="Default Image"
+                     style="width: 150px; height: 100px; object-fit: cover; border-radius: 6px;" />
+            </th:block>
         </div>
     </div>
 </main>

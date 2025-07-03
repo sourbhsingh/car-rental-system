@@ -48,12 +48,8 @@ public class BookingServiceImpl implements BookingService {
         booking.setCar(car);
         booking.setStartTime(dto.getStartTime());
         booking.setEndTime(dto.getEndTime());
-        if (!car.isAvailable()) {
-        booking.setStatus(BookingStatus.PENDING);
-        }
-        else {
-            booking.setStatus(BookingStatus.CONFIRMED);
-        }
+        booking.setStatus(BookingStatus.PENDING); // ⛔ Not confirmed until payment
+
         long hours = Duration.between(dto.getStartTime(), dto.getEndTime()).toHours();
         double total = hours * car.getPricePerHour();
 

@@ -49,13 +49,19 @@ public class BookingController {
     }
     @GetMapping("/user/book")
     public String showBookingForm(@RequestParam(name = "id", required = false) Integer carId,
-                                  Model model) {
+                                  Model model,@AuthenticationPrincipal UserDetails userDetails) {
+        UserDTO user = userService.getUserByEmail(userDetails.getUsername());
+
         BookingRequestDTO bookingRequestDTO = new BookingRequestDTO();
+        if(user!=null) {
+            bookingRequestDTO.setUserId(user.getId());
+        }// Get the userId from UserDTO
         if (carId != null) {
             bookingRequestDTO.setCarId(carId);
             model.addAttribute("car", carService.getCarById(carId)); // for car info display
         }
-        bookingRequestDTO.setUserId(2);
+
+
 
         model.addAttribute("bookingRequest", bookingRequestDTO);
         return "user/book"; // This will render user/book.html
@@ -69,7 +75,8 @@ public class BookingController {
         String userName = user.getName(); // Get the username from UserDTO
         List<BookingResponseDTO> bookings = bookingService.getBookingsByUserId(userId);
         model.addAttribute("bookings", bookings);
-        model.addAttribute("userName", userName); // Add username to the model
+        model.addAttribute("userName", userName);
+        model.addAttribute("now", java.time.LocalDateTime.now()); // ✅ Add this// Add username to the model
         return "user/mybookings";
     }
 
@@ -114,21 +121,25 @@ public class BookingController {
         return "user/book";
     }
 
-   @PostMapping("/book")
-   public String bookCar(@ModelAttribute("bookingRequest") BookingRequestDTO dto,
-                         @AuthenticationPrincipal UserDetails userDetails) {
-       try {
-           // Ensure userId is correct from session
-           UserDTO user = userService.getUserByEmail(userDetails.getUsername());
-           dto.setUserId(user.getId());
+    @PostMapping("/book")
+    public String bookCar(@ModelAttribute("bookingRequest") BookingRequestDTO dto,
+                          @AuthenticationPrincipal UserDetails userDetails,
+                          RedirectAttributes redirectAttributes) {
+        try {
+            UserDTO user = userService.getUserByEmail(userDetails.getUsername());
+            dto.setUserId(user.getId());
 
-           bookingService.createBooking(dto);
-           System.out.println("Booking created successfully for userId: " + user.getId() + ", carId: " + dto.getCarId());
-       } catch (Exception e) {
-           System.out.println("Failed to create booking: " + e.getMessage() + " at " + e.getStackTrace()[0]);
-           e.printStackTrace();
-       }
-       return "redirect:/user/dashboard";
-   }
+            BookingResponseDTO savedBooking = bookingService.createBooking(dto); // must return saved booking
+            Integer bookingId = savedBooking.getId();
+
+            redirectAttributes.addFlashAttribute("success", "Booking initiated. Please complete payment.");
+            return "redirect:/payment/" + bookingId;
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Booking failed: " + e.getMessage());
+            return "redirect:/user/dashboard";
+        }
+    }
+
 
 }

@@ -53,10 +53,14 @@ public class UserController {
     }
 
     @GetMapping("/mybookings")
-    public String showMyBookings(@RequestParam("userId") Integer userId, Model model) {
-        model.addAttribute("bookings", bookingService.getBookingsByUserId(userId));
+    public String showMyBookings(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        UserDTO user = userService.getUserByEmail(userDetails.getUsername());
+        model.addAttribute("now", LocalDateTime.now());
+        model.addAttribute("bookings", bookingService.getBookingsByUserId(user.getId()));
+        model.addAttribute("userName", user.getName());
         return "user/mybookings";
     }
+
     @GetMapping("/return/{bookingId}")
     public String returnCarForm(@PathVariable Integer bookingId, Model model) {
 
@@ -72,21 +76,30 @@ public class UserController {
     @PostMapping("/return/{bookingId}")
     public String returnCar(@PathVariable Integer bookingId) {
         bookingService.updateBookingStatus(bookingId, BookingStatus.COMPLETED.name());
-        return "redirect:/user/mybookings";
+        return "redirect:/mybookings";
     }
 
     @GetMapping("/payment/{bookingId}")
     public String paymentForm(@PathVariable Integer bookingId, Model model) {
         model.addAttribute("bookingId", bookingId);
+        BookingResponseDTO bookingResponseDTO = bookingService.getBookingById(bookingId);
+        double amount = bookingResponseDTO.getTotalPrice();
+        PaymentRequestDTO paymentRequest = new PaymentRequestDTO();
+        paymentRequest.setAmount(amount);
+        model.addAttribute("bookingResponse",bookingResponseDTO);
         model.addAttribute("paymentRequest", new PaymentRequestDTO());
         return "user/payment";
     }
-
     @PostMapping("/payment")
     public String processPayment(@ModelAttribute PaymentRequestDTO dto) {
         paymentService.makePayment(dto);
+
+        // ✅ Confirm the booking after successful payment
+        bookingService.updateBookingStatus(dto.getBookingId(), BookingStatus.CONFIRMED.name());
+
         return "redirect:/user/simulate";
     }
+
 
     @GetMapping("/simulate")
     public String paymentSuccess() {
