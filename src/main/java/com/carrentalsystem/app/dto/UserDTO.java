@@ -1,6 +1,9 @@
 package com.carrentalsystem.app.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+
+
 
 @Data
 public class UserDTO {

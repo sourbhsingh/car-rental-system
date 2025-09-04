@@ -1,18 +1,21 @@
 package com.carrentalsystem.app.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+@Controller
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleAllExceptions(Exception ex, WebRequest request) {
+    public String handleAllExceptions(Exception ex, Model model) {
         ex.printStackTrace(); // Log the exception for debugging
         System.out.println(ex.getMessage());
-        return new ResponseEntity<>("An error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        model.addAttribute("errmsg",ex.getMessage());
+        return "error/error" ;
     }
 }

@@ -1,18 +1,17 @@
 package com.carrentalsystem.app.config;
 
 import com.carrentalsystem.app.repository.UserRepository;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.*;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
-import java.io.IOException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -23,23 +22,35 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // You can enable CSRF if using tokens in forms
+                .csrf(csrf -> csrf.disable()) // Disable CSRF for REST APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/", "/auth/login", "/auth/register", "/auth/admin/login", "/error/**"
-                        ).permitAll()
+                        // ✅ Public REST endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // ✅ Public Thymeleaf endpoints
+                        .requestMatchers("/", "/auth/login", "/auth/register", "/auth/admin/login", "/api/admin/**", "/error/**").permitAll()
+
+                        // ✅ Static resources
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/images/**", "/uploads/**").permitAll()
+
+                        // ✅ Role-based access
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("USER")
+
+                        // Everything else needs authentication
                         .anyRequest().authenticated()
                 )
+
+                // ✅ Login for web users (Thymeleaf)
                 .formLogin(form -> form
                         .loginPage("/auth/login")
-                        .loginProcessingUrl("/auth/login") // Spring Security handles it automatically
-                        .successHandler(customAuthenticationSuccessHandler()) // 🔄 Role redirect
+                        .loginProcessingUrl("/auth/login") // Spring Security handles it
+                        .successHandler(customAuthenticationSuccessHandler())
                         .failureUrl("/auth/login?error=true")
                         .permitAll()
                 )
+
+                // ✅ Logout handling
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .logoutSuccessUrl("/auth/login?logout=true")
@@ -47,6 +58,8 @@ public class SecurityConfiguration {
                         .clearAuthentication(true)
                         .permitAll()
                 )
+
+                // ✅ Access denied page
                 .exceptionHandling(ex -> ex.accessDeniedPage("/403"));
 
         return http.build();
@@ -58,7 +71,7 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ Automatically redirect after login based on role
+    // ✅ Redirect after login (only for web form login, not REST)
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return (HttpServletRequest request,

@@ -1,6 +1,7 @@
 package com.carrentalsystem.app.service.impl;
 
 import com.carrentalsystem.app.dto.UserDTO;
+import com.carrentalsystem.app.dto.UserLoginDTO;
 import com.carrentalsystem.app.entity.User;
 import com.carrentalsystem.app.exception.ResourceNotFoundException;
 import com.carrentalsystem.app.helper.Role;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,7 +67,28 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.deleteById(userId);
     }
+    @Override
+    public UserDTO authenticateAdmin(UserLoginDTO loginDTO) {
+        Optional<User> optionalUser = userRepository.findByEmail(loginDTO.getEmail());
 
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+
+        User user = optionalUser.get();
+
+        // Validate password
+        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
+            return null;
+        }
+
+        // Must be an ADMIN role
+        if (user.getRole() != Role.ADMIN) {
+            return null;
+        }
+
+        return mapToDTO(user);
+    }
 
 
     @Override
@@ -73,6 +96,29 @@ public class UserServiceImpl implements UserService {
         User u = userRepository.findByEmail(email).orElse(null) ;
         return u != null;
     }
+    @Override
+    public UserDTO authenticateUser(UserLoginDTO loginDTO) {
+        Optional<User> optionalUser = userRepository.findByEmail(loginDTO.getEmail());
+
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+
+        User user = optionalUser.get();
+
+        // Validate password
+        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
+            return null;
+        }
+
+        // Must be a USER role
+        if (user.getRole() != Role.USER) {
+            return null;
+        }
+
+        return mapToDTO(user);
+    }
+
 
     private UserDTO mapToDTO(User user) {
         UserDTO dto = new UserDTO();
@@ -83,3 +129,6 @@ public class UserServiceImpl implements UserService {
         return dto;
     }
 }
+
+
+
