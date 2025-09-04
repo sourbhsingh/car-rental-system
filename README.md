@@ -73,24 +73,29 @@ mvn spring-boot:run
 
 | Role  | Email                | Password   |
 |-------|----------------------|------------|
-| Admin | admin@ridevia.com    | admin123   |
+| Admin | admin@ridevia.com    | admin123   |  <- config/DataSeeder class  for admin changes
 | User  | user@ridevia.com     | user123    |
 
 _You can change these in the DB or via the registration screen._
 
 ---
 
+---
 
+## 🔴 Live Demo (UI Preview)
 
-
-### 🖼 UI Preview
-
-You can embed sample screenshots here to showcase your design:
-
-![Dashboard Preview](https://yourcdn.com/screens/dashboard.png)
-<!-- Replace the URL above with your actual hosted image link -->
+🚀 Try the project here:  
+👉 [Ridevia – Live Deployed App](https://car-rental-system-production-7965.up.railway.app/)
 
 ---
+
+## 🎥 Project Demo (GIF Preview)
+
+> Here’s a quick look at how Ridevia works:
+
+![Project Demo](project-demo.gif)
+
+
 
 ### 📂 File Upload Strategy
 
