@@ -33,6 +33,49 @@
 | **Build Tool** | Maven                                     |
 
 ---
+### 📡 REST API Endpoints
+
+Ridevia also provides a full set of **RESTful APIs** for both **Admin** and **User** roles.
+
+---
+
+#### 🔑 Auth APIs
+- **POST** `/api/auth/register` → Register a new user  
+- **POST** `/api/auth/login` → Login as user  
+- **POST** `/api/auth/admin/login` → Login as admin  
+
+---
+
+#### 👨‍💼 Admin APIs
+- **GET** `/api/admin/dashboard` → Dashboard stats (bookings count, profit, cars, availability, recent bookings)  
+- **GET** `/api/admin/users` → Get all users  
+- **GET** `/api/admin/users/{id}` → Get user details + bookings  
+- **GET** `/api/admin/allbookings` → Get all bookings  
+- **GET** `/api/bookings/admin/view/{id}` → View booking details by ID  
+
+**Car Management**
+- **GET** `/api/admin/car` → Get all cars  
+- **GET** `/api/admin/car/{id}` → Get single car  
+- **POST** `/api/admin/car` → Add new car (with images)  
+- **PUT** `/api/admin/car/{id}` → Update car (+ optional images)  
+- **DELETE** `/api/admin/car/{id}` → Delete car  
+- **DELETE** `/api/admin/car/{id}/delete-image?url={imageUrl}` → Delete specific car image  
+
+---
+
+#### 🚗 User APIs
+- **GET** `/user/dashboard` → Get profile, upcoming bookings, available cars by type  
+- **GET** `/user/myBookings` → Get all bookings of logged-in user  
+- **PUT** `/user/return/{bookingId}` → Return a car (complete booking)  
+
+**Booking Management**
+- **POST** `/api/bookings/create` → Book a car  
+- **GET** `/api/bookings/myBookings` → View own bookings  
+- **PUT** `/api/bookings/cancel/{id}` → Cancel booking  
+
+---
+
+💡 For easier testing, you can import these into **Postman** or view them in **Swagger UI** once integrated.
 
 ## 🧑‍💻 How to Run Locally
 
