@@ -1,21 +1,17 @@
 package com.carrentalsystem.app.service.impl;
 
 import com.carrentalsystem.app.dto.UserDTO;
-import com.carrentalsystem.app.dto.UserLoginDTO;
 import com.carrentalsystem.app.entity.User;
 import com.carrentalsystem.app.exception.ResourceNotFoundException;
 import com.carrentalsystem.app.helper.Role;
 import com.carrentalsystem.app.repository.UserRepository;
 import com.carrentalsystem.app.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,9 +20,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDTO getUserById(Integer id) {
@@ -46,19 +40,19 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .filter(u-> u.getRole().name().equals(Role.USER.name()))
+                .filter(u -> u.getRole().name().equals(Role.USER.name()))
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDTO registerUser(User user) {
+        // The password must be encoded before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER); // default role
         User saved = userRepository.save(user);
         return mapToDTO(saved);
     }
-
 
     @Override
     public void deleteUser(Integer userId) {
@@ -67,58 +61,15 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.deleteById(userId);
     }
-    @Override
-    public UserDTO authenticateAdmin(UserLoginDTO loginDTO) {
-        Optional<User> optionalUser = userRepository.findByEmail(loginDTO.getEmail());
-
-        if (optionalUser.isEmpty()) {
-            return null;
-        }
-
-        User user = optionalUser.get();
-
-        // Validate password
-        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-            return null;
-        }
-
-        // Must be an ADMIN role
-        if (user.getRole() != Role.ADMIN) {
-            return null;
-        }
-
-        return mapToDTO(user);
-    }
-
 
     @Override
     public boolean isEmailExists(String email) {
-        User u = userRepository.findByEmail(email).orElse(null) ;
-        return u != null;
-    }
-    @Override
-    public UserDTO authenticateUser(UserLoginDTO loginDTO) {
-        Optional<User> optionalUser = userRepository.findByEmail(loginDTO.getEmail());
-
-        if (optionalUser.isEmpty()) {
-            return null;
-        }
-
-        User user = optionalUser.get();
-
-        // Validate password
-        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-            return null;
-        }
-
-        // Must be a USER role
-        if (user.getRole() != Role.USER) {
-            return null;
-        }
-
-        return mapToDTO(user);
+        return userRepository.findByEmail(email).isPresent();
     }
 
+    // Note: The custom authenticateUser and authenticateAdmin methods are no longer needed for the API.
+    // The AuthenticationManager now handles this by calling the UserDetailsServiceImpl.
+    // I am removing them to avoid confusion, but they could be kept for other purposes if needed.
 
     private UserDTO mapToDTO(User user) {
         UserDTO dto = new UserDTO();
@@ -129,6 +80,3 @@ public class UserServiceImpl implements UserService {
         return dto;
     }
 }
-
-
-

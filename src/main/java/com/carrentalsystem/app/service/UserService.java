@@ -12,8 +12,6 @@ public interface UserService {
     UserDTO getUserByEmail(String email);
     List<UserDTO> getAllUsers();
     UserDTO registerUser(User user);
-    UserDTO authenticateAdmin(UserLoginDTO loginDTO);
-    UserDTO authenticateUser(UserLoginDTO loginDTO);
     void deleteUser(Integer userId);
     boolean isEmailExists(@Email(message = "Invalid email format") String email);
 }

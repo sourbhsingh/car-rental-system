@@ -3,24 +3,35 @@ package com.carrentalsystem.app.restcontroller;
 import com.carrentalsystem.app.dto.UserDTO;
 import com.carrentalsystem.app.dto.UserLoginDTO;
 import com.carrentalsystem.app.entity.User;
-import com.carrentalsystem.app.exception.ResourceNotFoundException;
 import com.carrentalsystem.app.helper.Role;
+import com.carrentalsystem.app.dto.AuthRequest;
+import com.carrentalsystem.app.dto.AuthResponse;
+import com.carrentalsystem.app.security.util.JwtUtil;
 import com.carrentalsystem.app.service.UserService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
 public class AuthRestController {
-    @Autowired
+
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser( @RequestBody User user) {
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
         if (userService.isEmailExists(user.getEmail())) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
@@ -34,28 +45,25 @@ public class AuthRestController {
                 .body(savedUser);
     }
 
+    // This single endpoint handles login for both USER and ADMIN roles via API
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser( @RequestBody UserLoginDTO user) {
-        UserDTO loggedIn = userService.authenticateUser(user);
-        if(loggedIn==null) throw new RuntimeException("User Not found!");
-        else
-            return ResponseEntity.status(HttpStatus.OK).body(loggedIn);
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest) throws Exception {
+        try {
+            // Authenticate using Spring Security's AuthenticationManager
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password())
+            );
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect username or password");
+        }
 
+        // If authentication is successful, load UserDetails
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username());
+
+        // Generate the JWT
+        final String jwt = jwtUtil.generateToken(userDetails);
+
+        // Return the JWT in the response
+        return ResponseEntity.ok(new AuthResponse(jwt));
     }
-
-
-    @PostMapping("/admin/login")
-    public ResponseEntity<UserDTO> loginAdmin( @RequestBody UserLoginDTO user) {
-        UserDTO loggedIn = userService.authenticateAdmin(user);
-        if(loggedIn==null) throw new ResourceNotFoundException("User Not found!");
-        else
-            return ResponseEntity.status(HttpStatus.OK).body(loggedIn);
-
-    }
-
-
-
-
-
-
 }
