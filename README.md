@@ -154,7 +154,7 @@ _You can change these in the DB or via the registration screen._
 - ✅ Email notifications
 - ✅ Invoice export (PDF)
 - 🌍 Cloud image storage via **AWS S3**
-- 📱 Responsive UI using **Bootstrap** or **React**
+- 📱 Responsive UI using **React** Currently learning react learnt java script
 
 ---
 
