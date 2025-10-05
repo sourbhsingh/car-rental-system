@@ -145,8 +145,8 @@ _You can change these in the DB or via the registration screen._
 - All car images are stored in the `/uploads/` directory
 - Located **outside the `.jar`** file for persistence after redeployments
 - Accessible directly through URLs like:  
-  `http://localhost:8080/uploads/car_img1.jpg`
-
+  `http://localhost:8080/uploads/car_img1.
+  
 ---
 
 ### 🚀 Future Improvements
@@ -158,9 +158,7 @@ _You can change these in the DB or via the registration screen._
 
 ---
 
-### 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
 
 ---
 
