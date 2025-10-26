@@ -145,8 +145,8 @@ _You can change these in the DB or via the registration screen._
 - All car images are stored in the `/uploads/` directory
 - Located **outside the `.jar`** file for persistence after redeployments
 - Accessible directly through URLs like:  
-  `http://localhost:8080/uploads/car_img1.jpg`
-
+  `http://localhost:8080/uploads/car_img1.
+  
 ---
 
 ### 🚀 Future Improvements
@@ -154,13 +154,32 @@ _You can change these in the DB or via the registration screen._
 - ✅ Email notifications
 - ✅ Invoice export (PDF)
 - 🌍 Cloud image storage via **AWS S3**
-- 📱 Responsive UI using **Bootstrap** or **React**
+- 📱 Responsive UI using **React** Currently learning react learnt java script
+
+
+
+jwt Of course. Here is how you can answer common JWT interview questions concisely.
+What is a JWT?
+A JWT, or JSON Web Token, is a compact and self-contained standard for securely transmitting information as a JSON object.
+Its main purpose is stateless authentication. Because it's self-contained, the server doesn't need to store session data in memory or a database. This makes it highly scalable and ideal for APIs and microservices.
+Can you explain its structure?
+A JWT has three parts separated by dots: a Header, a Payload, and a Signature.
+ * Header: Contains metadata, like the signing algorithm used.
+ * Payload: Contains the "claims" or user data, like user ID and roles. This data is encoded, not encrypted, so you should never put sensitive information in it.
+ * Signature: This is used to verify the token's integrity. It's created by signing the header and payload with a secret key known only to the server.
+What's the main difference between JWT and Session-based authentication?
+The main difference is state.
+ * Sessions are stateful. The server stores session data and gives the client a simple session ID. This requires a database lookup on each request.
+ * JWTs are stateless. The server stores nothing. All the required user info is in the token itself, which the server just needs to verify cryptographically. This avoids database lookups and makes scaling much easier.
+How do you handle logout with JWTs?
+Since JWTs are stateless, you can't just delete them on the server. The best practice is:
+ * Use short-lived access tokens (e.g., valid for 15 minutes).
+ * The client deletes its token upon logout.
+ * For a better user experience, we use a long-lived refresh token to get a new access token without forcing the user to log in again.
 
 ---
 
-### 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
 
 ---
 
