@@ -25,8 +25,6 @@ import java.util.Map;
 @RequestMapping("/api/admin")
 public class AdminRestController {
 
-
-
     private final UserService userService;
     private final BookingService bookingService;
     private final CarService carService;

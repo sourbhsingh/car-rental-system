@@ -61,7 +61,7 @@ public class AuthRestController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username());
 
         // Generate the JWT
-        final String jwt = jwtUtil.generateToken(userDetails);
+        final String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
         // Return the JWT in the response
         return ResponseEntity.ok(new AuthResponse(jwt));
