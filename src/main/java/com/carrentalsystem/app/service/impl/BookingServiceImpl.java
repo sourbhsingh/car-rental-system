@@ -8,6 +8,7 @@ import com.carrentalsystem.app.entity.CarImage;
 import com.carrentalsystem.app.entity.User;
 import com.carrentalsystem.app.exception.ResourceNotFoundException;
 import com.carrentalsystem.app.helper.BookingStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import com.carrentalsystem.app.repository.BookingRepository;
@@ -28,11 +29,14 @@ import java.util.stream.Collectors;
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
-
+    private final RedisService redisService;
     private final UserRepository userRepository;
-
+    private final  long CACHE_TTL = 3600L;
     private final CarRepository carRepository;
 
+    private String bookingKey(String suffix){
+        return "Bookings:"+suffix;
+    }
     @Override
     public BookingResponseDTO createBooking(BookingRequestDTO dto) {
         User user = userRepository.findById(dto.getUserId())
@@ -48,7 +52,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setCar(car);
         booking.setStartTime(dto.getStartTime());
         booking.setEndTime(dto.getEndTime());
-        booking.setStatus(BookingStatus.PENDING); // ⛔ Not confirmed until payment
+        booking.setStatus(BookingStatus.PENDING);
 
         long hours = Duration.between(dto.getStartTime(), dto.getEndTime()).toHours();
         double total = hours * car.getPricePerHour();
@@ -57,24 +61,40 @@ public class BookingServiceImpl implements BookingService {
 
         car.setAvailable(false); // Block car until return
         Booking saved = bookingRepository.save(booking);
+        redisService.delete(bookingKey("all"));
         return mapToDTO(saved);
     }
 
 
     @Override
     public List<BookingResponseDTO> getBookingsByUserId(Integer userId) {
-        return bookingRepository.findByUser_Id(userId)
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        String key =  bookingKey("user:"+userId);
+        List<BookingResponseDTO> bookingResponseDTOS ;
+        bookingResponseDTOS = redisService.get(key);
+        if(bookingResponseDTOS==null) {
+            bookingResponseDTOS =
+                    bookingRepository.findByUser_Id(userId)
+                            .stream()
+                            .map(this::mapToDTO)
+                            .collect(Collectors.toList());
+            redisService.set(key, bookingResponseDTOS,CACHE_TTL);
+        }
+        return bookingResponseDTOS;
     }
 
     @Override
     public List<BookingResponseDTO> getAllBookings() {
-        return bookingRepository.findAll()
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        String key = bookingKey("all");
+        List<BookingResponseDTO> responseDtoLists;
+        responseDtoLists = redisService.get(key);
+        if(responseDtoLists==null){
+           responseDtoLists =  bookingRepository.findAll()
+                   .stream()
+                   .map(this::mapToDTO)
+                   .collect(Collectors.toList());
+           redisService.set(key, responseDtoLists, CACHE_TTL );
+        }
+        return responseDtoLists;
     }
 
     @Override
