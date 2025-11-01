@@ -31,33 +31,61 @@ public class CarServiceImpl implements CarService {
 
     private final CarRepository carRepository;
     private final CarImageRepository carImageRepository;
+    private final RedisService redisService;
+    private final  long CACHE_TTL = 3600L;
 
+    private String key(String suffix){
+        return "car:"+suffix;
+    }
 
     @Value("${car.upload.dir}")
     private String uploadDir;
 
     @Override
     public List<CarDTO> getAllAvailableCars() {
-        return carRepository.findAll()
+        String key = key("avl");
+        List<CarDTO> carDTOS;
+        carDTOS= redisService.get(key);
+        if(carDTOS==null){
+
+        carDTOS= carRepository.findAll()
                 .stream()
                 .filter(Car::isAvailable)
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+        redisService.set(key,carDTOS,CACHE_TTL);
+        }
+        return carDTOS;
     }
 
     @Override
     public List<CarDTO> getAllCars() {
-        return carRepository.findAll()
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        String key = key("all");
+        List<CarDTO> carDTOList;
+        carDTOList=redisService.get(key);
+        if(carDTOList==null) {
+          carDTOList =  carRepository.findAll()
+                    .stream()
+                    .map(this::mapToDTO)
+                    .collect(Collectors.toList());
+          redisService.set(key,carDTOList,CACHE_TTL);
+
+        }
+        return carDTOList;
     }
 
     @Override
     public CarDTO getCarById(Integer id) {
-        Car car = carRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Car not found with ID: " + id));
-        return mapToDTO(car);
+        String key = key("id:"+id);
+        CarDTO car ;
+        car =redisService.get(key);
+        if(car==null){
+            Car car1=carRepository.findById(id)
+                            .orElseThrow(() -> new ResourceNotFoundException("Car not found with ID: " + id));
+            car =  mapToDTO(car1);
+            redisService.set(key,car,CACHE_TTL);
+        }
+        return car;
     }
 
     @Override
@@ -67,6 +95,8 @@ public class CarServiceImpl implements CarService {
         car.setAvailable(true);
         Car savedCar = carRepository.save(car);
         saveImages(carUploadDTO.getImages(), savedCar);
+        redisService.delete(key("id:"+savedCar.getId()));
+        redisService.delete(key("all"));
         return mapToDTO(savedCar);
     }
 
@@ -76,6 +106,8 @@ public class CarServiceImpl implements CarService {
                 .orElseThrow(() -> new ResourceNotFoundException("Car not found for update with ID: " + id));
         mapUploadDTOToEntity(carUploadDTO, car);
         Car updated = carRepository.save(car);
+        redisService.delete(key("id:"+updated.getId()));
+        redisService.delete(key("all"));
         return mapToDTO(updated);
     }
 
@@ -149,7 +181,13 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public long countAvailableCars() {
-       return carRepository.findAllByAvailable(true).size();
+        String key = key("count");
+        Integer count = redisService.get(key);
+        if(count==null){
+            count = carRepository.findAllByAvailable(true).size();
+            redisService.set(key,count,CACHE_TTL);
+        }
+       return count;
     }
 
     @Override
