@@ -9,6 +9,7 @@ import com.carrentalsystem.app.service.CarService;
 import com.carrentalsystem.app.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 
@@ -39,8 +41,11 @@ public class BookingController {
                                 RedirectAttributes redirectAttributes) {
         try {
             bookingService.createBooking(bookingRequestDTO);
+            log.info("Booked Successfully");
            System.out.println("Success");
         } catch (Exception e) {
+            log.error("Booked FAiled");
+
             System.out.println( "Failed to book: " + e.getMessage()  +"  Error becz -CarID "+ bookingRequestDTO.getCarId() +" \t UserId"+bookingRequestDTO.getUserId() +" at " + e.getStackTrace()[0]);
             e.printStackTrace();
         }

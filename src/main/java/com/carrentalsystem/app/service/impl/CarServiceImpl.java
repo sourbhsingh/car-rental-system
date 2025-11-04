@@ -78,7 +78,9 @@ public class CarServiceImpl implements CarService {
     public CarDTO getCarById(Integer id) {
         String key = key("id:"+id);
         CarDTO car ;
-        car =redisService.get(key);
+        try{car = redisService.get(key );} catch (Exception e){
+            car = null ;
+        }
         if(car==null){
             Car car1=carRepository.findById(id)
                             .orElseThrow(() -> new ResourceNotFoundException("Car not found with ID: " + id));

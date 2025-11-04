@@ -8,6 +8,7 @@ import com.carrentalsystem.app.entity.CarImage;
 import com.carrentalsystem.app.entity.User;
 import com.carrentalsystem.app.exception.ResourceNotFoundException;
 import com.carrentalsystem.app.helper.BookingStatus;
+import jakarta.validation.constraints.Email;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
@@ -23,20 +24,24 @@ import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.carrentalsystem.app.helper.EmailTemplate.buildBookingConfirmationEmail;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class BookingServiceImpl implements BookingService {
-
+    private final EmailService emailService ;
     private final BookingRepository bookingRepository;
     private final RedisService redisService;
     private final UserRepository userRepository;
     private final  long CACHE_TTL = 3600L;
     private final CarRepository carRepository;
 
+
     private String bookingKey(String suffix){
         return "Bookings:"+suffix;
     }
+
     @Override
     public BookingResponseDTO createBooking(BookingRequestDTO dto) {
         User user = userRepository.findById(dto.getUserId())
@@ -61,7 +66,11 @@ public class BookingServiceImpl implements BookingService {
 
         car.setAvailable(false); // Block car until return
         Booking saved = bookingRepository.save(booking);
+        String emailContent = buildBookingConfirmationEmail(user, booking);
+        emailService.sendEmail(user.getEmail(), "RideVia Booking Confirmation", emailContent);
+
         redisService.delete(bookingKey("all"));
+        redisService.delete(bookingKey("user:"+user.getId()));
         return mapToDTO(saved);
     }
 
