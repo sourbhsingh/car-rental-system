@@ -59,7 +59,7 @@ public class AdminController {
     public String getAllBookings(Model model) {
         List<BookingResponseDTO> bookings = bookingService.getAllBookings();
         // Example to fetch a car, can be removed if not needed
-
+//
         model.addAttribute("bookings", bookings);
 
 
